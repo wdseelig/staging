@@ -1,0 +1,4 @@
+name = Contacts Selection
+description = "Allow users to down select contacts based on tags"
+package = Contacts Selection
+core = 7.x

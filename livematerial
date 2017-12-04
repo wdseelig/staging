@@ -1,0 +1,92 @@
+ Package            Name                                                    Version        
+ Chaos tool suite   Chaos tools (ctools)                                    7.x-1.3        
+ Chaos tool suite   Chaos Tools (CTools) AJAX Example (ctools_ajax_sample)  7.x-1.3        
+ Chaos tool suite   Page manager (page_manager)                             7.x-1.3        
+ Chaos tool suite   Views content panes (views_content)                     7.x-1.3        
+ Commerce           Cart (commerce_cart)                                    7.x-1.7        
+ Commerce           Checkout (commerce_checkout)                            7.x-1.7        
+ Commerce           Commerce (commerce)                                     7.x-1.7        
+ Commerce           Commerce UI (commerce_ui)                               7.x-1.7        
+ Commerce           Customer (commerce_customer)                            7.x-1.7        
+ Commerce           Customer UI (commerce_customer_ui)                      7.x-1.7        
+ Commerce           Line Item (commerce_line_item)                          7.x-1.7        
+ Commerce           Line Item UI (commerce_line_item_ui)                    7.x-1.7        
+ Commerce           Order (commerce_order)                                  7.x-1.7        
+ Commerce           Order UI (commerce_order_ui)                            7.x-1.7        
+ Commerce           Payment (commerce_payment)                              7.x-1.7        
+ Commerce           Payment UI (commerce_payment_ui)                        7.x-1.7        
+ Commerce           Price (commerce_price)                                  7.x-1.7        
+ Commerce           Product (commerce_product)                              7.x-1.7        
+ Commerce           Product Pricing (commerce_product_pricing)              7.x-1.7        
+ Commerce           Product Reference (commerce_product_reference)          7.x-1.7        
+ Commerce (PayPal)  PayPal (commerce_paypal)                                7.x-1.0        
+ Commerce (PayPal)  PayPal WPP (commerce_paypal_wpp)                        7.x-1.0        
+ Commerce (PayPal)  PayPal WPS (commerce_paypal_wps)                        7.x-1.0        
+ Core               Aggregator (aggregator)                                 7.22           
+ Core               Block (block)                                           7.22           
+ Core               Blog (blog)                                             7.22           
+ Core               Color (color)                                           7.22           
+ Core               Comment (comment)                                       7.22           
+ Core               Contact (contact)                                       7.22           
+ Core               Contextual links (contextual)                           7.22           
+ Core               Dashboard (dashboard)                                   7.22           
+ Core               Database logging (dblog)                                7.22           
+ Core               Field (field)                                           7.22           
+ Core               Field SQL storage (field_sql_storage)                   7.22           
+ Core               Field UI (field_ui)                                     7.22           
+ Core               File (file)                                             7.22           
+ Core               Filter (filter)                                         7.22           
+ Core               Help (help)                                             7.22           
+ Core               Image (image)                                           7.22           
+ Core               List (list)                                             7.22           
+ Core               Locale (locale)                                         7.22           
+ Core               Menu (menu)                                             7.22           
+ Core               Node (node)                                             7.22           
+ Core               Number (number)                                         7.22           
+ Core               Options (options)                                       7.22           
+ Core               Path (path)                                             7.22           
+ Core               PHP filter (php)                                        7.22           
+ Core               Poll (poll)                                             7.22           
+ Core               Search (search)                                         7.22           
+ Core               Shortcut (shortcut)                                     7.22           
+ Core               Statistics (statistics)                                 7.22           
+ Core               System (system)                                         7.22           
+ Core               Taxonomy (taxonomy)                                     7.22           
+ Core               Text (text)                                             7.22           
+ Core               Toolbar (toolbar)                                       7.22           
+ Core               Tracker (tracker)                                       7.22           
+ Core               Update manager (update)                                 7.22           
+ Core               User (user)                                             7.22           
+ Date/Time          Calendar (calendar)                                     7.x-3.4        
+ Date/Time          Date (date)                                             7.x-2.6        
+ Date/Time          Date All Day (date_all_day)                             7.x-2.6        
+ Date/Time          Date API (date_api)                                     7.x-2.6        
+ Date/Time          Date Popup (date_popup)                                 7.x-2.6        
+ Date/Time          Date Repeat API (date_repeat)                           7.x-2.6        
+ Date/Time          Date Repeat Field (date_repeat_field)                   7.x-2.6        
+ Date/Time          Date Tools (date_tools)                                 7.x-2.6        
+ Date/Time          Date Views (date_views)                                 7.x-2.6        
+ Feeds              Feeds (feeds)                                           7.x-2.0-alpha8 
+ Feeds              Feeds Admin UI (feeds_ui)                               7.x-2.0-alpha8 
+ Fields             Address Field (addressfield)                            7.x-1.0-beta4  
+ Media              File entity (file_entity)                               7.x-1.3        
+ Media              IMCE (imce)                                             7.x-1.7        
+ Media              Media (media)                                           7.x-1.3        
+ Media              Media Internet Sources (media_internet)                 7.x-1.3        
+ Other              CSS Injector (css_injector)                             7.x-1.8        
+ Other              Entity API (entity)                                     7.x-1.1        
+ Other              Entity tokens (entity_token)                            7.x-1.1        
+ Other              Job Scheduler (job_scheduler)                           7.x-2.0-alpha3 
+ Other              Masquerade (masquerade)                                 7.x-1.0-rc5    
+ Other              Mollom (mollom)                                         7.x-2.6        
+ Other              Paypal Donation Page (paypal_donate)                    7.x-1.6        
+ Other              Token (token)                                           7.x-1.5        
+ Rules              Rules (rules)                                           7.x-2.3        
+ Rules              Rules Scheduler (rules_scheduler)                       7.x-2.3        
+ Rules              Rules UI (rules_admin)                                  7.x-2.3        
+ User interface     IMCE Wysiwyg API bridge (imce_wysiwyg)                  7.x-1.0        
+ User interface     Wysiwyg (wysiwyg)                                       7.x-2.2        
+ Views              Views (views)                                           7.x-3.7        
+ Views              Views UI (views_ui)                                     7.x-3.7        
+ Webform            Webform (webform)                                       7.x-3.19       
+

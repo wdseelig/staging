@@ -1,0 +1,321 @@
+<?php
+
+/**
+*		Implements hook_menu
+*/
+function contactselect_menu() {
+			watchdog('contactselect',"Made it into the contactselect menu routine");
+ 	$items['updategrouptag'] = array(
+            'title' => 'This is a callback function to update the grouptag select page',
+            'description' => 'Callback function for the group tag exposed filter',
+            'page callback' => 'contactselect_ajax_callback',
+            'theme callback' => 'ajax_base_page_theme', // Sets base theme to be the same as current page.
+            'access arguments' => array('access content'),
+            'type' => MENU_CALLBACK,
+  );
+	return ($items);
+}
+
+/**
+*		Implements functions to enable contact selection
+*/
+
+
+function contactselect_form_alter(&$form,&$form_state,$form_id){
+		watchdog('contactselect',"Made it into the contact select form alter routine");
+//		kpr($form);
+//		kpr($form_state);
+//		kpr($form_id);
+		switch ($form_id) {
+			case 'views_exposed_form':
+			if ($form['#id'] == 'views-exposed-form-ContactsWithTags-page'){
+				$form['shs_term_node_tid_depth']['#attributes']['class'][] = 'chosen-enable';
+				$form['#chosen'] = 1;
+				$form['shs_term_node_tid_depth']['#chosen'] = TRUE;
+				$viewResults = views_get_view_result('BaseTagTerms');
+				$form['field_contacttags_tid']['#options'] = array();
+				$form['field_contacttags_tid']['#options']['All'] = '- Any -';
+				foreach ($viewResults as $termobj)
+					$form['field_contacttags_tid']['#options'][$termobj->tid] = $termobj->taxonomy_term_data_name;
+					
+				$viewResults = views_get_view_result('individualtagterms');
+				$form['field_contacttags_tid_1']['#options'] = array();
+				$form['field_contacttags_tid_1']['#options']['All'] = '- Any -';
+				foreach ($viewResults as $termobj)
+					$form['field_contacttags_tid_1']['#options'][$termobj->tid] = $termobj->taxonomy_term_data_name;	
+							
+				$form['field_contacttags_tid']['#ajax'] = array(
+					'callback' => 'contactselect_ajax_callback',
+//					'path' => 'updategrouptag',
+					'wrapper' => 'tagwrapper',
+				);
+				$form['#prefix'] = '<div id = "tagwrapper" class = "chosen-enable">';
+				$form['#suffix'] = '</div>';
+				break;
+//				
+//				array_unshift($form['#submit'],'contactselect_populatetaxonomy');
+				
+			}
+			case 'crm_core_contact_ui_form' :
+			watchdog('contactselect', 'Made it into the crm_core_contact_ui_form');
+			if ($form['#id'] == 'crm-core-contact-ui-form') {
+				watchdog('contactselect','passed the form id test');
+				$infoid=$form['#entity']->info_id;
+				$contact = wcgopindividualinfo_load($infoid);
+				$form['contact_name'] = array();
+				$form['field_address'] = array();
+				$emailentry = ($contact->email) ? 'Email address: ' . $contact->email: '';
+				$form['body'] = array(
+				'#markup' => '<p><h3><br>' . $contact->PrimaryAddress1 . '<br>' .
+					$contact->PrimaryCity . ', ' .
+					$contact->PrimaryState . ' ' .
+					$contact->PrimaryZip . '<br>' .
+					$emailentry . '<br></h3></p>',
+				'#weight' => '0'
+				);
+				$form['notes']= array(
+    		'#type' => 'textarea',
+   			 '#title' => t('Add or edit the notes for this contact'),
+    			'#required' => FALSE,
+    			'#default_value' => "",
+    			'#description' =>
+    			'This is where the notes for this contact go',
+    			'#size' => 10,
+    			'#maxlength' => 60,
+  );
+  			$form['notes']['#value'] = $form['#entity']->notes;
+				$form['actions']['submit']['#value'] = 'Save contactttt information';
+				$form['field_tagswithhhsv2']['und']['#title'] = 'Use the boxes below to add/remove tags';
+				unset($form_state['input']['notes']);
+				
+				$form['actions']['submit']['#submit'] = array('wcgopsavecontact');
+				
+				drupal_set_title(t($contact->LastName . ", " . $contact->FirstName));
+//				kpr($form);
+				break;
+			}			 
+		}
+	}
+	function wcgopsavecontact($form, &$form_state) {
+//		kpr($form);
+//		kpr($form_state);
+//		die;
+		$cid = $form['#entity']->contact_id;
+		$wrapper = entity_metadata_wrapper('crm_core_contact',$cid);
+		$tagarray = array();
+		foreach ($form['field_tagswithhhsv2']['und']['#value'] as $key => $value) {
+			$tagarray[] = $value['tid'];
+		}
+		$wrapper->field_tagswithhhsv2->set($tagarray);
+		$wrapper->notes->set($form_state['input']['notes']);
+		$wrapper->save();
+		return;
+	}
+function contactselect_views_pre_render(&$view) {
+	drupal_add_js(libraries_get_path('chosen') . '/chosen.jquery.js');
+}
+function contactselect_pre_render_select($element){
+
+	$shschosensettings = array(
+		'searchcontains' => variable_get('chosen_search_contains',""),
+		'minimum_width' => variable_get('chosen_minimum_width'),
+		'placeholder_text_multiple' => variable_get('chosen_placeholder_text_multiple',""),
+		'placeholder_text_single' => variable_get('chosen_placeholder_text_single',""),
+		'no_results_text' => variable_get('chosen_no_results_text',""),
+		'selector' => variable_get('chosen_jquery_selector',""),
+		'minimum' => variable_get('chosen_minimum',0),
+		);
+		drupal_add_js($shschosensettings,'setting');
+
+		watchdog('contactselectprerender','I am in the contactselect pre_render routine');
+		return($element);
+}
+
+function contactselect_populatetaxonomy(&$form,&$form_state){
+	if ( !empty($form['field_contacttags_tid']['#value'])) {
+//		kpr($form);
+		$parentid = reset($form['field_contacttags_tid']['#value']);
+		$childarray = taxonomy_get_children($parentid);
+		$form['field_contacttags_tid_1']['#options'] = array();
+		$form['field_contacttags_tid_1']['#options']['All'] = '- Any -';
+		foreach ($childarray as $termobj)
+			$form['field_contacttags_tid_1']['#options'][$termobj->tid] = $termobj->name;	
+//		kpr($form);		
+		}
+	}
+
+
+
+	function contactselect_ajax_callback($form, $form_state){
+			drupal_add_js('misc/ajax.js');
+//			printf('Well here we are!');
+//			kpr($form);
+//		kpr($form);
+//		$commands[] = ajax_command_alert('Can we access a form variable: ' . $form['#action']);
+//		$page = array('#type' => 'ajax', '#commands' => $commands);
+//		ajax_deliver($page);
+		$form['field_contacttags_1']['#options']['28'] = 'Mystuff';
+		return $form['field_contacttags_1']['#options']['28'];
+		
+}
+
+	function contactselect_views_api() {
+		watchdog('contactselect','Made it into the views api routine');
+    return array(
+       'api' => 3,
+       'path' => drupal_get_path('module','contactselect') . '/views',
+   );
+}
+function contactselect_entity_info_alter(&$entity_info){
+	$entity_info['crm_core_contact']['views_controller_class']= 'EntityDefaultViewsController';
+//	kpr($entity_info);
+}
+function contactselect_entity_property_info_alter(&$info) {
+/*
+*		Here is where I let the entity api know about the new property that I
+*		have added to the crm_core_contact module.  The .install file of this
+*		module makes the actual changes to the database; here I just bring
+*		the entity api up to speed.
+*
+
+		watchdog('contactselect','Made it into the entity property info alter');
+*/
+		$properties = &$info['crm_core_contact']['properties'];
+			$properties['info_id']['label'] = 'referencetoinfo';
+		  $properties['info_id']['type'] = 'wcgopindividualinfo';
+		 	$properties['info_id']['bundle'] = 'wcgopindividualinfo'; 
+			$properties['info_id']['setter callback'] = 'entity_property_verbatim_set';
+			$properties['info_id']['setter permission'] = 'Administer wcgopindividualinfo content';
+			$properties['info_id']['getter callback'] = 'entity_property_verbatim_get';
+			$properties['info_id']['getter permission'] = 'Administer wcgopindividualinfo content';
+			$properties['info_id']['schema field'] = 'info_id';
+			$properties['info_id']['entity views field'] = TRUE;
+			$properties['notes']['setter callback'] = 'entity_property_verbatim_set';
+			$properties['notes']['setter permission'] = 'Administer contact types';
+			$properties['notes']['entity views field'] = TRUE;
+//			kpr($info);
+//			die;
+/*
+			$properties['notes'] = array(
+			'label' => t('Notes'),
+			'type' => 'text',
+			'description' => t('Notes associated with this contact'),
+			'setter callback' => 'entity_property_verbatim_set',
+			'setter permission' => 'Administer wcgopindividualinfo content',
+			'schema_field' =>'notes',
+			'entity views field' => TRUE,
+			);
+*/
+//			$properties['contact_name'] = array(
+//			'label' => t('contactname'),
+//			'type' => 'name',
+//			'description' => t('A dummy field to fool entity_metadata_wrapper'),
+//			);
+			$properties = &$info['wcgopindividualinfo']['properties'];
+			$properties['email'] = array(
+			'type' => 'text',
+			'schema_field' =>'email',
+			'required' => FALSE,
+			'description' => t('The entity property definition of email'),
+			'label' => t('email'),
+			'setter callback' => 'entity_property_verbatim_set',
+			'entity views field' =>TRUE,
+			);
+
+}
+/*
+*		No database tables are needed for this module, but we do need to make
+*		changes to the core contact entity [crm_core_contact] and this is a
+*		convenient place to do this.  Note that in order to get this to run,
+*		it will be necessary to disable, uninstall, and re-enable this module,
+*		which I'll do with drush commands.
+*/
+function	contactselect_schema_alter (&$schema) {
+//	watchdog('contactselect','Am in the contact_select_schema_alter routine');
+  $schema['crm_core_contact']['fields']['info_id'] = array(
+    'type' => 'int',
+    'not null' => FALSE,
+    'default' => 0,
+  );
+  $schema['crm_core_contact']['fields']['notes'] = array(
+    'type' => 'text',
+    'size' => 'big',
+    'not null' => FALSE,
+  );
+  $schema['wcgopindividualinfo']['fields']['email'] = array(
+  	'description' => 'The email field description in schema',
+    'type' => 'varchar',
+    'length' => 255,
+    'not null' => FALSE,
+  );
+//  $schema['wcgopindividualinfo']['fields']['contactemail'] = array(
+//  	'description' => t('The contact email address for this contactttt'),
+//    'type' => 'varchar',
+//    'length' => 255,
+//    'not null' => FALSE,
+//  );
+}
+/*
+*		Add a relationship to the crm_core_contact table to allow it to link
+*		to the wcgopindividualinfo table.
+*/
+function contactselect_views_data_alter(&$data) {
+	$data['crm_core_contact']['aliasfield'] = array(
+		'title' => t('Relate contact to info'),
+		'help' => t('Connect a crm_core_contact to its info'),
+		'relationship' => array(
+			'base' => 'wcgopindividualinfo',
+			'base_field' => 'info_id',
+			'field' => 'info_id',
+			'handler' => 'views_handler_relationship',
+			'label' => t('Contact to Info'),
+			'help' => t('Connect a crm_core_contact to wcgopindividualinfo'),
+		)
+	);
+	$data['referencetoinfo']['LastName'] = array(
+		'label' => 'LastNNName',
+		'field' => array (
+			'sortable' => TRUE,
+		)
+		);
+}
+/**
+ * Implements hook_feeds_processor_targets_alter().
+ */
+function contactselect_feeds_processor_targets_alter(&$targets, $type, $bundle) {
+//  if ($type == 'crm_core_contact' && $bundle == 'V2Individual') {
+    $targets['info_id'] = array(
+      'name' => t('info_id'),
+      'description' => t('Shows up in legend on mapping form.'),
+      'callback' => 'contactselect_set_target',
+      'optional_unique' => TRUE,
+    );
+    $targets['notes'] = array(
+      'name' => t('The notes attached to this contact'),
+      'description' => t('Shows up in legend on mapping form.'),
+      'callback' => 'contactselect_set_target'
+    );
+//  }
+}
+/**
+ * Mapping callback.
+ */
+function mymodule_set_target($source, $entity, $target, $value, $mapping) {
+/**
+*			
+*/
+}
+function contactselect_feeds_presave(FeedsSource $source, $entity, $item){
+	watchdog('contactselect_feeds_presave','I am in the presave routine');
+	drupal_set_message('I am in the contactselect routine','status');
+	$entity->field_tagswithhhsv2['und']['0']['tid'] = 33;
+	if (substr($source->config->FeedFileFetcher['source'], -11) === "_append.csv")
+		$action = "We should append these records";
+	else
+		$action = "We should NOT append these records";
+	$y = 2;
+//	dpm($source);		
+//	print_r($entity);
+//	print_r($item);
+//	die;
+}

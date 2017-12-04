@@ -1,0 +1,234 @@
+<?php
+/**
+ * Implements hook_commerce_checkout_pane_info()
+ */
+function commerce_gopcheckout_commerce_checkout_pane_info() {
+  $panes['commerce_gopcheckout'] = array(
+    'title' => t('GOP Checkout On January 20'),
+    'page' => 'checkout',
+    'weight' => 10,
+    'base' => 'commerce_gopcheckout_pane',
+  );
+  return $panes;
+}
+function commerce_gopcheckout_form_commerce_checkout_form_alter(&$form,&$form_state,$form_id)
+{
+//	kpr($form);
+//	kpr($form_state);
+//	kpr($form_id);
+	variable_set("aaa5","Made it into the form alter routine on February 18");
+	switch($form_id){
+		case 'commerce_checkout_form_checkout':
+		if (isset ($form[customer_profile_accountinformationi])){
+			$form['body'] = array(
+			'#markup' => '<p><h3>Please fill in the form below and then proceed to the payment process by clicking on the Continue to Next Step button at the bottom of the form</h3></p>',
+			'#weight' => '0'
+			);
+		}
+		elseif (isset($form[customer_profile_member])){
+			$form['body'] = array(
+			'#markup' => '<p><h3>We are looking forward to seeing you at this event! Please fill in your name<br>so we know you are coming and then click the Finish Registering button below.<br><br> We will see you there!</h3></p>',
+			'#weight' => '0'
+			);
+//			$form['#action'] = '/ForumConfirmation';
+			$form['customer_profile_member']['field_wcgopmembername']['#access'] = FALSE;
+			$form['buttons']['continue']['#access'] = FALSE;
+			$form['buttons']['cancel']['#access'] = FALSE;
+			$form['customer_profile_member']['field_wcgopordername']['und']['0']['value']['#title'] = 'Please enter the name for this order here';
+			$form['customer_profile_member']['field_wcgopordername']['und']['0']['#description'] = 'Please enter the name for this order here';
+			$form['actions']['continue']['#type'] = 'submit';
+			$form['actions']['continue']['#value'] = 'Finish Registering';
+			$form['actions']['continue']['#submit'] = array('commerce_gopcheckout_finishorder');		
+			$form['account']['login']['mail']['#required'] = FALSE;
+			$form['account']['#access'] = FALSE;
+//			kpr($form);
+		}
+		else {
+			/*
+				This is the normal case when our customer profile is billing.  This code will run if an order is
+				in the "shopping cart" state [i.e., is not completed].  The url will be home/checkout/order#
+			*/
+		
+		$form['body'] = array(
+			'#markup' => '<p><h3>Federal and state law require us to collect this information.  Please fill in the form below and then proceed to the payment process by clicking on the Continue to Next Step button at the bottom of the form</h3></p>',
+			'#weight' => '0'
+			);
+		
+		variable_set ("aaa6","Made it into the commerce_checkout_form_checkout case");
+		$statesarray = array (
+		  'visible' => array (
+		     ':input[name="customer_profile_billing[field_gopstoreemployed][und]"]' => array('value' => '1')
+		     )
+		     ); 
+		$form['customer_profile_billing']['field_gopstoreemployer']['#states'] = $statesarray;
+		$form['customer_profile_billing']['field_gopstoremyemployeraddress']['#states'] = $statesarray;
+		$form['buttons']['continue']['#value'] = 'Continue to the very very very Next Step';
+/*
+		Here we take over the routing of the checkout process by changing the #submit property
+		of the continue button.  It is necessary to make our routine [commerce_gopcheckout_gopordercheck]
+		first in line [hence the array_unshift], and then to remove the process that Commerce has already
+		associated with this button [hence the unset].  
+*/
+		array_unshift($form['buttons']['continue']['#submit'],'commerce_gopcheckout_gopordercheck');
+		unset($form['buttons']['continue']['#submit'][1]);
+		kpr ($form);
+ 		kpr($form_state);
+		break;
+	}
+		case 'commerce_checkout_form_review' :
+			kpr ($form);
+			$form['buttons']['continue']['#value'] = "Make Your Primo Payment";
+			break;
+//	kpr($statesarray);
+//	kpr($form);
+	return;
+}
+}
+/*
+		This is the routine that processes a click of the "Continue to the next step" button on
+		the Commerce Checkout form.  
+*/
+function commerce_gopcheckout_gopordercheck($form,&$form_state) {
+	  
+//		drupal_goto("http://75.98.171.75/node/1892");
+		kpr ($form);
+		kpr ($form_state);
+		global $user;
+		$order = commerce_cart_order_load($user->uid);
+		drupal_set_message("Hello there guys!");
+		if (!$form['customer_profile_billing']['field_paidbycheck']['und']['#value']){
+			drupal_goto('checkout/' . $order->order_id . '/review');
+		}
+		commerce_order_status_update($order,'pending');
+		commerce_order_save($order);
+		drupal_goto('checkout/' . $order->order_id );
+		
+		
+}
+function commerce_gopcheckout_form_alter(&$form,&$form_state,$form_id) {
+	variable_set("aaa9","Made it into the commerce_add_to_cart_form_alter routine");
+	
+	global $user;
+
+// Load cart order
+	$order = commerce_cart_order_load($user->uid);
+	if ($order)  {
+  // Let's use the wrapper because it rocks
+  $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
+  foreach ($order_wrapper->commerce_line_items as $delta => $line_item_wrapper) {
+  	$line_item = $line_item_wrapper->value();
+    }
+}
+	
+	$addcartform = substr($form_id,0,30);
+	switch ($addcartform) {
+		case 'commerce_cart_add_to_cart_form':
+			variable_set("aaa10","Made it into the add to cart form case after February 22");
+	//		$form['submit']['#type'] = 'image_button';
+	//		$form['submit']['#src'] = 'files/buttons/AddToCartBlue.png';
+//			);
+			kpr ($form);
+			foreach ($form['product_id']['#options'] as $key => $value) {
+      $form['product_id']['#options'][$key] = check_plain($value);
+    }
+			$form['product_id']['#type'] = 'radios';
+			$form['line_item_fields']['field_mgdonationlevel']['und']['#title']="<h3><strong>Please choose below the amount you wish to donate and then click on the Add to Cart button</strong></h3>";
+			$form['line_item_fields']['field_forumdonation']['und']['#title'] = "";
+			$form['line_item_fields']['field_wcgopmember']['und']['#title'] = "<strong>Please check this box if you are a member of the Washtenaw County Republican Party</strong>";
+			$form['line_item_fields']['field_wcgopmemberpurchase']['und']['#title'] = "<strong>Please check this box if you would like to purchase a membership in the Washtenaw County Republican Party</strong>";
+			$form['line_item_fields']['field_wcgopattendevent']['und']['#title'] = "<strong>Please check this box if you would like to attend the event, but do not wish to purchase a WCGOP memberhship</strong>";
+			$form['line_item_fields']['field_wcgopmembername']['und']['0']['#title'] = "hidden";
+			$form['line_item_fields']['field_wcgopmembername']['und']['0']['value']['#title'] = "After making your selection, please enter your name <br> in this box and click the Add To Cart button below";
+//			$form['line_item_fields']['field_payatdoor']['und']['#title'] = "<strong>Please check this box if you would prefer to pay at the door. (Cash or Check, only)</strong>";
+//			$form['line_item_fields']['field_payatdoor']['und']['#access'] = FALSE;
+			$form['line_item_fields']['field_wcgopmembername']['und']['#title'] = "hidden";
+			$form['attributes']['field_forummenu']['#title']="";
+			$form['attributes']['field_menu2017']['#title']="";
+			$form['attributes']['field_sponsorship2017']['#title']="";
+			$membersarray = array( 
+		  'visible' => array (
+		     ':input[name="line_item_fields[field_wcgopmember][und]"]' => array('checked' => TRUE)
+		     )
+		     ); 
+		$form['line_item_fields']['field_wcgopmembername']['#states'] = $membersarray;
+//		kpr($form);
+			
+	//		$form['attributes']['field_menuchoice']['#default_value'] = "3";
+	//		$form['attributes']['field_receptionmenu']['#default_value'] = "3";
+	//		$form['attributes']['field_sponsoroption']['#default_value'] = "3";
+//			kpr($form);
+//			kpr($membersarray);
+//			kpr($statesarray);
+			break;
+	}
+	switch ($form_id) {
+			case 'views_form_commerce_cart_form_default':
+					kpr ($order);
+				$form['actions']['payatdoor']['#type'] = 'submit';
+				$form['actions']['payatdoor']['#value'] = 'Pay at Door';
+				$form['actions']['payatdoor']['#submit'] = array('commerce_gopcheckout_submit');
+				$form['actions']['payatdoor']['#weight'] = '-1500';
+					kpr ($form);
+				
+ 				kpr ($form);
+				break;
+				case 'commerce_checkout_form_complete':
+				$form['checkout_completion_message']['message']['#markup'] = '<p><h3>Thank you for this order and for your continued support of the Washtenaw County Republican Party!</h3></p>';
+//				kpr ($form);
+//				kpr ($form_state);
+				break;
+	}
+//	kpr ($form);
+	return;
+}
+function commerce_gopcheckout_commerce_checkout_form_submit($form, &$form_state) {
+	global $user;
+	kpr ($form);
+	kpr ($form_state);
+	variable_set("aaa11","Made it into the commerce_gopcheckout_submit routine");
+	$order = commerce_cart_order_load($user->uid);
+	$order_wrapper = entity_metadata_wrapper('commerce_order', $order);
+	$order_wrapper->field_payatdoor->set('1');	
+	commerce_order_save($order);
+	drupal_set_message('You made it into the button submit routine!');
+	drupal_goto('checkout/' . $order->order_id);
+}
+function commerce_gopcheckout_finishorder($form, &$form_state) {
+	variable_set("aaa12","Made it into the commerce_gopcheckout_finishorder routine");
+//	kpr($form);
+	$namevalue = $form['customer_profile_member']['field_wcgopordername']['und']['0']['value']['#value'];
+//	drupal_set_message('The value of the namevalue is: ' . $namevalue);
+//	kpr($namevalue);
+//	die(kpr($form));
+	global $user;
+	$order = commerce_cart_order_load($user->uid);
+	$order_wrapper = entity_metadata_wrapper('commerce_order', $order);
+	drupal_set_message('You made it into the finish order routine!');
+	$order_wrapper->field_wcgopordername->set($namevalue);
+	commerce_order_save($order);
+	
+          
+    // get profile id
+ // $profile_id = $order_wrapper->commerce_customer_member->profile_id->value();
+    
+    // load customer profile
+//  $profile = commerce_customer_profile_load($profile_id);
+//  $profile_wrapper = entity_metadata_wrapper('commerce_customer_profile', $profile);
+     
+           // set the value of the field and save the profile
+ //          $profile_wrapper->field_shop_annotations->set($annotations);
+ //	$profile_wrapper->field_wcgopmembername->set('Auguste Rodin');
+ //          $profile_wrapper->save();
+	drupal_set_message('You made it into the finish order routine!');
+	drupal_goto('/ForumConfirmation');
+}
+function commerce_gopcheckout_commerce_email_order_items($variables) {
+
+  // Get order wrapper.
+  $order_wrapper = $variables['commerce_order_wrapper'];
+
+  // Get rendered view.
+  return views_embed_view('commerce_cart_summary', 'default', $order_wrapper->getIdentifier());
+}
+
+?>

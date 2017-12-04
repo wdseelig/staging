@@ -1,0 +1,52 @@
+.view-id-vtsdailyview table {
+    table-layout: fixed;
+}
+.firsthandleheader h2 {
+    padding-left: 2em;
+    height: 10px;
+    width: 15em ;
+    vertical-align: middle;
+}
+.firsthandleheader h3 {
+    height: 8px;
+    width: 15em;
+    vertical-align: middle;
+}
+.timeinterval h3 {
+    height: 8px;
+    width: 15em;
+    vertical-align: middle;
+}
+.vtstoplink a {
+    font-size: 1.5em;
+    float: right;
+}
+.vtstopnickname {
+    font-size: 1.5em;
+}
+.vtseventdaytop {
+
+    color: red;
+}
+.vtseventdaytoptime {
+    color: black;   
+}
+.vtseventdaytop .date-display-single {
+    color: black;
+}
+.vtsbody tbody {
+    border: 0px;
+}
+.vtsbody td {
+    padding: 0;
+}
+.vtsbody table {
+    margin-bottom: .7em;
+
+}
+.vtsbody h2 {
+    margin-bottom: .1em;
+}
+a.otherevents {
+    float: right;
+}

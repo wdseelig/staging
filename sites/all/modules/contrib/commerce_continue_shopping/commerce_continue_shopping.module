@@ -1,0 +1,42 @@
+<?php
+/**
+ * @file
+ * A custom module that adds the Continue Shopping link to the Drupal Commerce cart page.
+ */
+
+/**
+ * Implements hook_help().
+ *
+ * Displays help and module information.
+ *
+ * @param path 
+ *   Which path of the site we're using to display help
+ * @param arg 
+ *   Array that holds the current path as returned from arg() function
+ */
+function commerce_continue_shopping_help($path, $arg) {
+  switch ($path) {
+    case "admin/help#commerce_continue_shopping":
+      return '<p>' . t("Adds the Continue Shopping link to the Drupal Commerce cart page.") . '</p>';
+      break;
+  }
+} 
+
+/**
+ * Implements hook_form_FORM_ID_alter(&$form, &$form_state, $form_id)
+ */
+function commerce_continue_shopping_form_views_form_commerce_cart_form_default_alter(&$form, &$form_state, $form_id) {
+  $form['actions']['continue_shopping'] = array(
+    '#type' => 'button',
+    '#value' => t('Continue Shopping'),
+    '#weight' => -999,
+  );
+  if (isset($_SERVER['HTTP_REFERER']) && strlen($_SERVER['HTTP_REFERER'])) {
+    // if user comes from product detail page, redirect user to previous page
+    $form['actions']['continue_shopping']['#attributes'] = array('ONCLICK' => "history.go(-1); return false;");
+  } else {
+    // redirect user to product list page 'store' by default
+    $form['actions']['continue_shopping']['#attributes'] = array('ONCLICK' => "window.location.href='" . url('store') . "'; return false;");
+  }
+}
+?>

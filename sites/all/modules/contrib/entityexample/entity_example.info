@@ -1,0 +1,5 @@
+name = Entity Example
+description = Module that provides a very basic entity example
+package = Development
+core = 7.x
+dependencies[] = entity

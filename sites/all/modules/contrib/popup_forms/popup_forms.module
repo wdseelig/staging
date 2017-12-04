@@ -1,0 +1,415 @@
+<?php
+/**
+ * @file
+ * Hook implementations and general functions.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function popup_forms_menu() {
+  return array(
+    'ajax-get-popup-form/%' => array(
+      'page callback' => 'popup_forms_get_ajax_form',
+      'page arguments' => array(1),
+      'access callback' => TRUE,
+      'type' => MENU_CALLBACK,
+      'file' => 'popup_forms.pages.inc',
+      'delivery callback' => 'popup_forms_deliver_popup_form',
+    ),
+    'form/%' => array(
+      'type' => MENU_CALLBACK,
+      'page arguments' => array(1),
+      'page callback' => 'popup_forms_form_page',
+      'file' => 'popup_forms.pages.inc',
+      'access callback' => 'popup_forms_form_page_access',
+      'access arguments' => array(1),
+    ),
+  );
+}
+
+/**
+ * Implements hook_theme().
+ */
+function popup_forms_theme() {
+  return array(
+    'popup_forms_page' => array(
+      'template' => 'popup-forms-page',
+      'variables' => array('content' => NULL),
+    ),
+  );
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function popup_forms_form_alter(&$form, &$form_state, $form_id) {
+  if (isset($form_state['popup_forms_data']) && ($form_data = $form_state['popup_forms_data'])) {
+    $form['#popup_forms_ajax_form_data'] = $form_data;
+    // If popup form is generating, then set additional form element, which
+    // indicates, that it is popup form. This flag should be form element to
+    // be persistent, even if form is rebuilding via ajax.
+    if (!empty($form_state['popup_form'])) {
+      $form_state['storage']['popup_form'] = TRUE;
+    }
+    // Check if current form is popup form.
+    if (!empty($form_state['storage']['popup_form'])) {
+      $form['#after_build'] = !empty($form['#after_build']) ? $form['#after_build'] : array();
+      $form['#after_build'][] = 'popup_forms_process_buttons';
+    }
+  }
+}
+
+/**
+ * Delivery callback for popup forms.
+ *
+ * In fact, we create page, wich will be similar to drupal page theming, but we
+ * will render just page callback result in body of the page.
+ */
+function popup_forms_deliver_popup_form($page_callback_result) {
+  // If form has been submitted, then we should only pass form values to JS
+  // and finish appropriate dialog.
+  if (is_array($page_callback_result) && isset($page_callback_result['#popup_form_state']['finish_dialog_index'])) {
+    $form = $page_callback_result;
+    // This needs for IE.
+    print '<meta http-equiv="X-UA-Compatible" content="IE=8" />';
+    if (function_exists('libraries_get_path')) {
+      $lib_path = libraries_get_path('jquery.postmessage');
+    }
+    else {
+      $lib_path = 'sites/all/libraries/jquery.postmessage';
+    }
+    drupal_add_js($lib_path . '/jquery.ba-postmessage.min.js', array('group' => JS_LIBRARY));
+    $result = array(
+      'popup_forms' => array(
+        'form_values' => array(
+          'values' => $form['#popup_form_state']['values'],
+          'finish_dialog_index' => $form['#popup_form_state']['finish_dialog_index'],
+        ),
+        'ref' => $_GET['ref'],
+      ),
+    );
+    if (isset($form['#popup_form_state']['popup_forms_redirect'])) {
+      $result['popup_forms']['form_values']['popup_forms_redirect'] = $form['#popup_form_state']['popup_forms_redirect'];
+    }
+
+    drupal_add_js($result, 'setting');
+    drupal_add_js(drupal_get_path('module', 'popup_forms') . '/js/popup_forms_submit.js', array('defer' => TRUE));
+    print drupal_get_js();
+    drupal_page_footer();
+    return;
+  }
+
+  // Render page for dialog.
+  if (isset($page_callback_result) && is_null(drupal_get_http_header('Content-Type'))) {
+    drupal_add_http_header('Content-Type', 'text/html; charset=utf-8');
+  }
+  // Send appropriate HTTP-Header for browsers and search engines.
+  global $language;
+  drupal_add_http_header('Content-Language', $language->language);
+  popup_forms_child_js();
+  if (is_int($page_callback_result)) {
+    switch ($page_callback_result) {
+      case MENU_NOT_FOUND:
+        drupal_add_http_header('Status', '404 Not Found');
+        drupal_set_title('');
+        $popup_content = t('Form not found');
+        break;
+
+      case MENU_ACCESS_DENIED:
+        drupal_add_http_header('Status', '403 Forbidden');
+        drupal_set_title(t('Access denied'));
+        $popup_content = t('You are not authorized to access this form.');
+        break;
+    }
+  }
+  else {
+    $popup_content = drupal_render($page_callback_result);
+  }
+  print theme('popup_forms_page', array('content' => $popup_content));
+  drupal_page_footer();
+}
+
+/**
+ * Find all buttons in form with specified submit handlers and add our handler to them.
+ * Also, this is after build callback for each popup form.
+ */
+function popup_forms_process_buttons(&$form_element) {
+  foreach (element_children($form_element) as $child) {
+    popup_forms_process_buttons($form_element[$child]);
+  }
+  if (isset($form_element['#type']) && in_array($form_element['#type'], array('form', 'submit', 'button')) && isset($form_element['#submit'])) {
+    $form_element['#submit'][] = 'popup_forms_form_submit_handler';
+  }
+  return $form_element;
+}
+
+/**
+ * Additional submit handler for popup forms (close-handler).
+ *
+ * Check if popup form dialog should be closed.
+ */
+function popup_forms_form_submit_handler($form, &$form_state) {
+  // Skip rebuild case.
+  if (!empty($form['#programmed']) || !empty($form_state['rebuild'])) {
+    return;
+  }
+
+  if (isset($_GET['destination'])) {
+    $form_state['popup_forms_redirect'] = url($_GET['destination']);
+  }
+  elseif (isset($form_state['redirect'])) {
+    $form_state['popup_forms_redirect'] = url($form_state['redirect']);
+  }
+
+  // Set 'no_redirect' flag for ajax forms.
+  if (empty($form_state['popup_forms_not_ajax'])) {
+    $form_state['no_redirect'] = TRUE;
+  }
+
+  // Check if clicked button is close button.
+  $button_id = isset($form_state['triggering_element']['#id']) ? $form_state['triggering_element']['#id'] : NULL;
+  $button_name = isset($form_state['triggering_element']['#name']) ? $form_state['triggering_element']['#name'] : NULL;
+  if (!in_array($button_name, $form['#popup_forms_ajax_form_data']['close_buttons'])
+  && !in_array($button_id, $form['#popup_forms_ajax_form_data']['close buttons'])) {
+    return;
+  }
+
+  // Non-ajax popup form.
+  if (!empty($form_state['popup_forms_not_ajax'])) {
+    $form_state['redirect'] = isset($_GET['destination']) ? $_GET['destination'] : $_GET['q'];
+    return;
+  }
+
+  // Set index, which dialog should be finished.
+  $form_state['finish_dialog_index'] = $_GET['popup_forms_num'];
+}
+
+/**
+ * Implements hook_preprocess_popup_forms_page().
+ */
+function template_preprocess_popup_forms_page(&$variables) {
+  $variables['rdf_namespaces']    = drupal_get_rdf_namespaces();
+  $variables['grddl_profile']     = 'http://www.w3.org/1999/xhtml/vocab';
+  $variables['language']          = $GLOBALS['language'];
+  $variables['language']->dir     = $GLOBALS['language']->direction ? 'rtl' : 'ltr';
+  // Construct page title.
+  if (drupal_get_title()) {
+    $variables['head_title'] = strip_tags(drupal_get_title());
+  }
+  $variables['messages'] = theme('status_messages');
+  if (variable_get('popup_forms_default_css', TRUE)) {
+    drupal_add_css(drupal_get_path('module', 'popup_forms') . '/css/popup_forms.default.css');
+  }
+}
+
+/**
+ * Implements hook_process_popup_forms_page().
+ */
+function template_process_popup_forms_page(&$variables) {
+  $variables['head']    = drupal_get_html_head();
+  $variables['styles']  = drupal_get_css();
+  $variables['scripts'] = drupal_get_js();
+}
+
+/**
+ * Part of the popup_forms API.
+ *
+ * Call this method if you are going to open a jquer ui dialog. It includes
+ * needed css and javascript tools to ease up the process.
+ */
+function popup_forms_parent_js() {
+  $processed = &drupal_static(__FUNCTION__);
+  // Make sure external resources are not included more than once.
+  if ($processed === TRUE) {
+    return;
+  }
+  $processed = TRUE;
+  drupal_add_library('system', 'ui.dialog');
+  $m = drupal_get_path('module', 'popup_forms');
+  if (function_exists('libraries_get_path')) {
+    $path = libraries_get_path('jquery.postmessage');
+    $path_deparam = libraries_get_path('jquery-deparam');
+  }
+  else {
+    $path = 'sites/all/libraries/jquery.postmessage';
+    $path_deparam = 'sites/all/libraries/jquery-deparam';
+  }
+  drupal_add_js("$path/jquery.ba-postmessage.min.js", array('group' => JS_LIBRARY));
+  drupal_add_js("$path_deparam/jquery-deparam.min.js", array('group' => JS_LIBRARY));
+  drupal_add_css("$m/css/popup_forms.parent.css");
+  drupal_add_js("$m/js/popup_forms_parent.js");
+}
+
+/**
+ * Part of the popup_forms API.
+ *
+ * This method must be called in the client (child) window. E.g. when you load
+ * the URL dialog/login you must call jquery_ui_dialog_child_js in the menu
+ * handler callback.
+ * In general this adds the needed js tool to connect to the parent
+ * communitcation tunnel and handle all the auto-resize events.
+ */
+function popup_forms_child_js($options = array()) {
+  $my_options = array_merge(array('index' => $_GET['popup_forms_num']), $options);
+
+  drupal_add_js(array('popup_forms_child' => $my_options), 'setting');
+  module_invoke_all('popup_forms_child_loading');
+  $module_path = drupal_get_path('module', 'popup_forms');
+  if (function_exists('libraries_get_path')) {
+    $path = libraries_get_path('jquery.postmessage');
+  }
+  else {
+    $path = 'sites/all/libraries/jquery.postmessage';
+  }
+  drupal_add_js("$path/jquery.ba-postmessage.min.js", array('group' => JS_LIBRARY));
+  drupal_add_js($module_path . '/js/popup_forms_child.js');
+  drupal_add_library('system', 'ui.dialog');
+  drupal_add_library('system', 'ui.draggable');
+
+  // Add the css files we need for the dialog in general.
+  drupal_add_css($module_path . '/css/popup_forms.child.css');
+}
+
+/**
+ * Implements hook_popup_forms_child_loading().
+ */
+function popup_forms_popup_forms_child_loading() {
+  module_invoke('admin', 'suppress');
+  module_invoke('admin_menu', 'suppress');
+}
+
+/**
+ * Access callback for 'form/%' path.
+ */
+function popup_forms_form_page_access($form_id) {
+  $form_data = popup_forms_get_form_data($form_id);
+  return $form_data && $form_data['autopage'] && _popup_forms_check_form_access($form_data);
+}
+
+/**
+ * Collect data about specific popup form.
+ *
+ * @param string $form_key
+ *   Popup form ID.
+ * @param bool $reset
+ *   Reset or not internal cache.
+ *
+ * @return array
+ *   Array with popup form info or FALSE if such for cannot be found.
+ */
+function popup_forms_get_form_data($form_key, $reset = FALSE) {
+  $data = &drupal_static(__FUNCTION__);
+  if (!isset($data) || $reset) {
+    $forms = module_invoke_all('popup_forms_data');
+    drupal_alter('popup_forms_data', $forms);
+    foreach ($forms as $key => $form) {
+      // Add default values.
+      $forms[$key] += array(
+        'access callback' => TRUE,
+        'autopage' => TRUE,
+        'access arguments' => array(),
+        'form arguments' => array(),
+        'close_buttons' => array(),
+        'close buttons' => array(),
+        'form id' => isset($form['form id']) ? $form['form id'] : $key,
+        'title' => '',
+      );
+      foreach ($forms[$key]['form arguments'] as $arg_key => $value) {
+        if (!is_array($value)) {
+          $forms[$key]['form arguments'][$arg_key] = array(
+            'default value' => $value,
+          );
+        }
+      }
+    }
+    $data = $forms;
+  }
+  return isset($data[$form_key]) ? $data[$form_key] : FALSE;
+}
+
+/**
+ * Build a link that opens popup form.
+ *
+ * @param string $form_id
+ *   Popup form id (must be declared in hook_popup_forms_data()).
+ * @param string $title
+ *   Link title
+ * @param array $arguments
+ *   Form arguments, keyed.
+ * @param array $options
+ *   Additional link options (as for url() function).
+ *
+ * @return string
+ *   Rendered link.
+ */
+function popup_forms_build_link($form_id, $title, $arguments = array(), $options = array()) {
+  $form_data = popup_forms_get_form_data($form_id);
+
+  if ($form_data['autopage']) {
+    $path = 'form/' . $form_id;
+    $options['query'] = $arguments;
+    $options['query']['destination'] = $_GET['q'];
+  }
+  else {
+    // Current path.
+    $path = $_GET['q'];
+    $options['fragment'] = ' ';
+  }
+  if (empty($options['attributes']['class'])) {
+    $options['attributes']['class'] = array();
+  }
+  $options['attributes']['class'][] = 'popup-forms-hotlink';
+  $link_data = $arguments;
+  $link_data['form_id'] = $form_id;
+  $options['attributes']['data-popup-forms'] = drupal_json_encode($link_data);
+  // Add parent js to this page.
+  popup_forms_parent_js();
+  return l($title, $path, $options);
+}
+
+/**
+ * Gets arguments for checking popup form access.
+ *
+ * @param array $form_info
+ *   Array with form info, same as popup_forms_get_form_data() returns.
+ *
+ * @return array
+ *   Array with form access callback arguments.
+ */
+function _popup_forms_get_form_access_arguments($form_info) {
+  $args = array();
+  foreach ($form_info['access arguments'] as $key => $default_value) {
+    if (isset($_GET[$key])) {
+      $args[] = $_GET[$key];
+    }
+    else {
+      $args[] = $default_value;
+    }
+  }
+  return $args;
+}
+
+/**
+ * Checks popup form access.
+ *
+ * @param array $form_info
+ *   Array with form info, same as popup_forms_get_form_data() returns.
+ *
+ * @return bool
+ *   Access check result.
+ */
+function _popup_forms_check_form_access($form_info) {
+  $access_function = $form_info['access callback'];
+  $access_arguments = _popup_forms_get_form_access_arguments($form_info);
+  if ($access_function === FALSE) {
+    $access = FALSE;
+  }
+  elseif ($access_function === TRUE) {
+    $access = TRUE;
+  }
+  else {
+    $access = call_user_func_array($access_function, $access_arguments);
+  }
+  return $access;
+}

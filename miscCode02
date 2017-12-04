@@ -1,0 +1,24 @@
+MySQL:
+
+update ud u
+inner join sale s on
+    u.id = s.udid
+set u.assid = s.assid
+
+drush pm-disable mymodule
+drush pm-uninstall mymodule
+drush pm-enable mymodule
+
+function wcgopindividualinfo_views_data_alter(&$data) {
+  $data['wcgopindividualinfo'] = array(
+  'title' => t('Relate my info table to crm_core_contact'),
+  'help' => t('This connects a crm_core_contact to its info'),
+  'relationship' => array (
+  	'base' => 'crm_core_contact',
+  	'base field' => 'info_id',
+  	'field' => 'gopid',
+  	'handler' => 'views_handler_relationship',
+  	'label' => t('info_id in crm_core_contact to gopid in wcgopindividualinfo'),
+  )
+  )
+}

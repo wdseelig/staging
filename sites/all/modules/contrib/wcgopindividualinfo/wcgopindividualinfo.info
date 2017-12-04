@@ -1,0 +1,6 @@
+name = Washtenaw County GOP Individual Information
+description = An entity to contain mostly QVF information about individuals
+package = Washtenaw County Contacts
+core = 7.x
+project = "wcgopindividualinfo"
+files[] = wcgopindividualinfo.controller.inc

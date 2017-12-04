@@ -1,0 +1,8 @@
+name = WCGOP Contacts
+description = "Store and retrieve information about our contacts"
+package = WCGOP Contacts System
+core = 7.x
+dependencies[] = views
+files[] = wcgopcontacts.module
+files[] = includes/wcgopcontacts.info.inc
+files[] = views/wcgopcontacts.views_default.inc

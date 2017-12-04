@@ -1,0 +1,31 @@
+List of menu router items automatically created by enabling the entity_example module.
+With the exception of admin/content/entity_example and admin/structure/entity_example_bundles,
+the rest of the paths are automatically created by the Entity API module.
+
+admin/content/entity_example,                                                    drupal_get_form,    sites/all/modules/contrib/entity/includes/entity.ui.inc
+admin/content/entity_example/add,                                                entity_ui_get_form, ...entity_example.admin.inc
+admin/content/entity_example/list,                                               drupal_get_form,    sites/all/modules/contrib/entity/includes/entity.ui.inc
+admin/content/entity_example/manage/%,                                           entity_ui_get_form, ...entity_example.admin.inc
+admin/content/entity_example/manage/%/%,                                         drupal_get_form,    sites/all/modules/contrib/entity/includes/entity.ui.inc
+admin/content/entity_example/manage/%/clone,                                     entity_ui_get_form, ...entity_example.admin.inc
+admin/content/entity_example/manage/%/edit,                                      entity_ui_get_form, ...entity_example.admin.inc
+admin/structure/entity_example_bundles,                                          drupal_get_form,    sites/all/modules/contrib/entity/includes/entity.ui.inc
+admin/structure/entity_example_bundles/add,                                      entity_ui_get_form, ...entity_example.admin.inc
+admin/structure/entity_example_bundles/import,                                   drupal_get_form,    sites/all/modules/contrib/entity/includes/entity.ui.inc
+admin/structure/entity_example_bundles/list,                                     drupal_get_form,    sites/all/modules/contrib/entity/includes/entity.ui.inc
+admin/structure/entity_example_bundles/manage/%,                                 entity_ui_get_form, ...entity_example.admin.inc
+admin/structure/entity_example_bundles/manage/%/%,                               drupal_get_form,    sites/all/modules/contrib/entity/includes/entity.ui.inc
+admin/structure/entity_example_bundles/manage/%/clone,                           entity_ui_get_form, ...entity_example.admin.inc
+admin/structure/entity_example_bundles/manage/%/display,                         drupal_get_form,    modules/field_ui/field_ui.admin.inc
+admin/structure/entity_example_bundles/manage/%/display/default,                 drupal_get_form,    modules/field_ui/field_ui.admin.inc
+admin/structure/entity_example_bundles/manage/%/display/diff_standard,           drupal_get_form,    modules/field_ui/field_ui.admin.inc
+admin/structure/entity_example_bundles/manage/%/display/full,                    drupal_get_form,    modules/field_ui/field_ui.admin.inc
+admin/structure/entity_example_bundles/manage/%/display/token,                   drupal_get_form,    modules/field_ui/field_ui.admin.inc
+admin/structure/entity_example_bundles/manage/%/edit,                            entity_ui_get_form, ...entity_example.admin.inc
+admin/structure/entity_example_bundles/manage/%/fields,                          drupal_get_form,    modules/field_ui/field_ui.admin.inc
+admin/structure/entity_example_bundles/manage/%/fields/%,                        drupal_get_form,    modules/field_ui/field_ui.admin.inc
+admin/structure/entity_example_bundles/manage/%/fields/%/delete,                 drupal_get_form,    modules/field_ui/field_ui.admin.inc
+admin/structure/entity_example_bundles/manage/%/fields/%/edit,                   drupal_get_form,    modules/field_ui/field_ui.admin.inc
+admin/structure/entity_example_bundles/manage/%/fields/%/field-settings,         drupal_get_form,    modules/field_ui/field_ui.admin.inc
+admin/structure/entity_example_bundles/manage/%/fields/%/widget-type,            drupal_get_form,    modules/field_ui/field_ui.admin.inc
+admin/structure/entity_example_bundles/manage/%/rdf,                             drupal_get_form,    <<empty>>

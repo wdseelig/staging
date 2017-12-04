@@ -1,0 +1,274 @@
+<?php
+
+/**
+ * @file
+ * The purpose of this module is to create a basic custom "Entity"
+ * using both the Drupal core API, and the UI API exposed by the
+ * contributed module "Entity API".
+ * 
+ * There are three requirements for implementing a fully CRUD capable
+ * entity using these two APIs:
+ * 
+ *  - Implementing hook_entity_info().
+ *  - Defining an a custom access callback.
+ *  - Implementing the Form API for add/edit/clone actions using
+ *    a form with the form ID ENTITY_TYPE_form(). Each entity requires
+ *    a form implementation. We define two entitites (main entity, entity bundle)
+ *    so we'll implement a total of two forms.
+ *    
+ * The first two requirements are met in this *.module file.
+ * The forms are implemented in *.admin.inc.
+ * 
+ * 
+ * Example final menu_router structure for Model module:
+ * SELECT path, page_callback, include_file FROM menu_router where path like '%model%';
+ *
+ */
+
+/**
+ * Implementation of hook_entity_info
+ * 
+ * Go tell Drupal that this is the base table of our entity
+ * and set up a few things about how it should treat the entity.
+ * 
+ * @see http://drupalcode.org/project/entity.git/blob/refs/heads/7.x-1.x:/entity.api.php
+ */
+function entity_example_entity_info(){
+  
+  $return['entity_example'] = array(
+    // We provide a label to have a human readable reference to our entity.
+    'label' => t('Entity example'),
+    'plural label' => t('Entity example items'),
+    'description' => t('entity_example description.'),
+    'entity class' => 'Entity', // Use the default class.
+    'controller class' => 'EntityAPIController',
+      
+    // This key is used for customizing the metadata wrapper access.
+    // 'metadata controller class' => 'FooMetadataController',
+    'fieldable' => TRUE,
+    // This class will actually subclass the DrupalDefaultEntityController class (which lives in entity.inc) and worries about such things such as caching, querying, attaching to fields, etc.
+    // You don't strictly need to define this class (it will automatically use the default one), but if you did want to override some of the existing functionality this would be the way to do it.
+    // The class can go in a separate file called entity_example.controller.inc
+    //'controller class' => 'EntityExampleController', 
+    'base table' => 'entity_example',
+      
+    // model, field_collection, profile2, collections modules all use the same 'entity_class_uri', so
+    // it makes sense us for use to do the same, unless we have an explicit reason not to do so.
+    // This is a regular (non-OOP) function call, so if you change the uri callback, you'll have to
+    // implement a function for it.
+    'uri callback' => 'entity_class_uri',
+    //'label callback' => 'entity_class_label',
+    'fieldable' => TRUE,
+    'entity keys' => array(
+      'id' => 'pid',
+      'name' => 'type',
+      'label' => 'label',
+    ),
+    'static cache' => TRUE,
+      
+    // Bundles
+    'bundles' => array(),
+    'bundle keys' => array(
+      'bundle' => 'type', // Maps to the type column on the hook_install schema.
+    ),
+      
+    // Required by EntityDefaultUIController::hook_menu().
+    'module' => 'entity_example',
+    
+    'view modes' => array(
+        'full' => array(
+            'label' => t('Full entity_example'),
+            'custom settings' =>  FALSE,
+        ),
+    ),
+      
+    // Implement the Entity API module CRUD UI.
+    // The 'admin ui' key is "made available" when you download and enable the contributed "Entity API" module.
+    // 'admin ui' is not an "official" part of the hook_entity_info() definition on D.O.
+    // The information defined in the 'admin ui' will be used by the EntityDefaultUIController class.
+    // For more information on the 'admin ui' parameter, see http://drupalcode.org/project/entity.git/blob/refs/heads/7.x-1.x:/entity.api.php.
+    'admin ui' => array(
+        
+      // In EntityDefaultUIController::__construct() the 'path' key is assigned to the
+      // EntityDefaultUIController::path property.
+      // Here is a list of paths EntityDefaultUIController::hook_menu() will construct using the 'path' key:
+
+      // path: $this->path,         callback: drupal_get_form,    args: array($this->entityType . '_overview_form', $this->entityType)
+      //                            Form: provided automatically for you.
+      // path: $this->path. /list,  type: local task
+      //                            Form: goes to the same place as above.
+      // path: $this->path. /add,   callback: entity_ui_get_form, args: array($this->entityType, NULL, 'add')
+      //                            Form: required, example: entity_example_form()
+      // $wildcard = isset($this->entityInfo['admin ui']['menu wildcard']) ? $this->entityInfo['admin ui']['menu wildcard'] : '%entity_object';
+      // path: $this->path. /manage/. $wildcard
+      //                            callback: drupal_get_form, args: array($this->entityType . '_operation_form', $this->entityType, $id_count + 1, $id_count + 2)
+      // path: $this->path. /import
+      
+      // Most of the callbacks for these paths will ultimately be forms. When using entity_ui_get_form(),
+      // the form id is determined by the following line:
+      //  $form_id = (!isset($bundle) || $bundle == $entity_type)
+      //     ? $entity_type . '_form' : $entity_type . '_edit_' . $bundle . '_form';
+        
+      'path' => 'admin/content/entity_example',
+      'file' => 'entity_example.admin.inc',
+        
+      // To customize the list provided by the Entity API module, you can extend and override
+      // the default UI controller with your own. Otherwise, Entity API is just going to use the EntityDefaultUIController class.
+      // 'controller class' => 'EntityDefaultUIController',
+
+      // When implementing the Entity API UI, it expects to find a %wildcard function,
+      // where %wildcard is the name of your entity. The default load function is %entity_object (e.g., entity_object_load()),
+      // unless overriden by the 'menu wildcard' key.
+      // 'menu wildcard' => '%foo', // This would call foo_load().
+    ),
+    // When implementing 'admin ui', the 'access callback' parameter is required.
+    // The 'access callback' parameter is part not part of the official hook_entity_info() definition either.
+    // For a more robust example (e.g., per bundle perms), see profile2_type_access() or model_access().
+    'access callback' => 'entity_example_access',
+  );
+  
+  
+  
+  // Support entity cache module.
+  if (module_exists('entitycache')) {
+    $return['entity_example']['field cache'] = FALSE;
+    $return['entity_example']['entity cache'] = TRUE;
+  }
+  
+  // Add bundle info but bypass entity_load() as we cannot use it here.
+  // Profile2 adds the bundle metadata via the hook_entity_info(),
+  // but Model adds it via hook_entity_info_alter()...
+  $types = db_select('entity_example_bundle', 'p')
+  ->fields('p')
+  ->execute()
+  ->fetchAllAssoc('type');
+  
+  foreach ($types as $type => $info) {
+    // bundles: An array keyed by bundle name containing further metadata
+    // related to the bundles only. This array may contain the key 'properties'
+    // with an array of info about the bundle specific properties, structured in
+    // the same way as the entity properties array.
+    // @see hook_entity_property_info()
+    $return['entity_example']['bundles'][$type] = array(
+      'label' => $info->label,
+      'admin' => array(
+        // The path will be used by the Entity API for operations such as - 
+        // admin/structure/entity_example_bundles/manage/main/fields
+
+        // NOTICE:
+        // %entity_example_bundle is a special "auto-loader" wildcard, meaning we
+        // must define a entity_example_bundle_load() function in our module.
+        // Consult the hook_menu() documentationfor further auto-loader documentation.
+        'path' => 'admin/structure/entity_example_bundles/manage/%entity_example_bundle',
+        'real path' => 'admin/structure/entity_example_bundles/manage/' . $type,
+        'bundle argument' => 4,
+        'access arguments' => array('administer profiles'),
+      ),
+    );
+  }  
+  
+  // Taken from hook_entity_info() implementation on profile2.module,
+  // look for the 'profile2_type' key on the $return array.
+  $return['entity_example_bundle'] = array(
+    'label' => t('Entity example bundle'),
+    'plural label' => t('Entity example bundles'),
+    'description' => t('Bundles of entity_example entities.'),
+    'entity class' => 'Entity', // Use the default class.
+    'controller class' => 'EntityAPIControllerExportable',
+    'base table' => 'entity_example_bundle',
+    'fieldable' => FALSE,
+    'bundle of' => 'entity_example',
+    'exportable' => TRUE,
+    'entity keys' => array(
+      'id' => 'id',
+      'name' => 'type',
+      'label' => 'label',
+    ),
+    'access callback' => 'entity_example_access',
+    'module' => 'entity_example',
+    'admin ui' => array(
+      'path' => 'admin/structure/entity_example_bundles',
+      'file' => 'entity_example.admin.inc',
+      'controller class' => 'EntityDefaultUIController',
+    ),
+  );
+  
+  return $return;
+}
+
+/**
+ * Access callback for entity_example.
+ */
+function entity_example_access($op, $entity_example = NULL, $account = NULL) {
+  // returning TRUE just for the sake of the example.
+  // but using user_access is the proper thing to do.
+  //return user_access('administer profile types', $account);
+  return TRUE;
+}
+
+
+/**
+* Menu argument loader; Load a entity example bundle by string.
+*
+* @param $type
+*   The machine-readable name of a entity bundle to load.
+* @return
+*   A entity bundle array or FALSE if $type does not exist.
+*   
+* @see profile2_type_load
+*/
+function entity_example_bundle_load($type) {
+  return entity_example_get_bundles($type);
+}
+
+/**
+ * Gets an array of all profile types, keyed by the type name.
+ *
+ * @param $type_name
+ *   If set, the type with the given name is returned.
+ * @return ProfileType[]
+ *   Depending whether $type isset, an array of entity example bundles or a single one.
+ */
+function entity_example_get_bundles($bundle = NULL) {
+  $types = entity_load_multiple_by_name('entity_example_bundle', isset($bundle) ? array($bundle) : FALSE);
+  return isset($bundle) ? reset($types) : $types;
+}
+
+/**
+ * Custom function for loading our entities.
+ * 
+ * Determines whether to load just one or multiple entities.
+ */
+function entity_example_load($pid = NULL, $reset = FALSE){
+  $pids = (isset ($pid) ? array($pid) : array());
+  $entity_example = entity_example_load_multiple($pids, $reset);
+  return $entity_example ? reset ($entity_example) : FALSE;
+}
+
+/**
+ * Custom function for loading multiple entities.
+ * 
+ * Callback for entity_example_load(). 
+ * 
+ * @param array $pids
+ * @param array $conditions
+ * @param boolean $reset
+ * @return Entity
+ */
+function entity_example_load_multiple($pids = array(), $conditions = array(), $reset = FALSE){
+  return entity_load('entity_example', $pids, $conditions, $reset);
+}
+
+/**
+ * Implementation of hook_permisison.
+ */
+function entity_example_permission(){
+  return array(
+    'administer entity_examples' =>  array(
+      'title' => t('Administer entity_examples'),
+      'restrict access' => TRUE,
+    ),
+ );
+}
+
+

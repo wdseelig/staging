@@ -1,0 +1,5 @@
+name = Commerce GOP Checkout
+package = WCGOP Commerce Additions
+description = "Provide our own checkout form to Commerce"
+core = 7.x
+dependencies[] = views

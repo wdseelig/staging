@@ -1,0 +1,8 @@
+name = FirstThreeModules
+description = The first three modules that I have enabled
+core = 7.x
+package = Features
+dependencies[] = admin_menu
+dependencies[] = backup_migrate
+dependencies[] = coffee
+features[features_api][] = api:2

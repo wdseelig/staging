@@ -1,0 +1,4 @@
+name = WDS Trial Module
+description = A trial to see if I can get a module to show up
+core = 7.x
+

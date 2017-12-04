@@ -1,0 +1,309 @@
+<?php
+
+/**
+ * @file
+ * Create table for wcgopindividualinfo.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function wcgopindividualinfo_schema() {
+  $schema = array();
+  $schema['wcgopindividualinfo'] = array(
+    'description' => 'The base table for wcgopindividualinfo.',
+    'fields' => array(
+      'info_id' => array(
+        'description' => 'The primary identifier.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'gop_id' => array(
+        'description' => 'Legacy data identifier',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'LastName' => array(
+        'description' => 'The last name of the contact',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'FirstName' => array(
+        'description' => 'The first name of the contact',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'MiddleName' => array(
+        'description' => 'The contact' . "'" . 's middle name',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+      'PrimaryAddress1' => array(
+        'description' => 'The contact' . "'" . 's street address',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+      'PrimaryCity' => array(
+        'description' => 'The city in which the contact is registered',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+      'PrimaryState' => array(
+        'description' => 'The state in which the contact lives',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+      'PrimaryZip' => array(
+        'description' => 'The contact' . "'" . 's zip code',
+        'type' => 'varchar',
+        'length' => 10,
+        'not null' => FALSE,
+      ),
+      'PrimaryZip4' => array(
+        'description' => 'The contact' . "'" . 's 9 digit zip code',
+        'type' => 'varchar',
+        'length' => 10,
+        'not null' => FALSE,
+      ),
+      'PrimaryHouseNumber' => array(
+        'description' => 'The contact' . "'" . 's House Number',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+      'PrimaryHouseHalf' => array(
+        'description' => 'The house half number',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+      'PrimaryStreetName' => array(
+        'description' => 'The contact' . "'" . 's Street Name',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+      'PrimaryStreetType' => array(
+        'description' => 'The type of street (road, avenue, etc.) on which the contact lives',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+      'PrimaryUnit' => array(
+        'description' => 'The type of living quarter: Unit, Apt. , etc.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+      'PrimaryUnitNumber' => array(
+        'description' => 'The number of the unit, apartment, etc.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+      'PrimaryPhone' => array(
+        'description' => 'The contact' . "'" . 's telephone number',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+      'HasPrimaryPhone' => array(
+        'description' => 'TRUE/FALSE indicating whether has phone',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => FALSE,
+      ),
+      'DOB' => array(
+        'description' => 'Date of Birth (just the year)',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+      'Age' => array(
+        'description' => 'Column Description',
+        'type' => 'int',
+        'size' => 'small',
+        'not null' => FALSE,
+      ),
+      'Gender' => array(
+        'description' => 'Gender',
+        'type' => 'varchar',
+        'length' => 5,
+        'not null' => FALSE,
+      ),
+      'ObservedParty' => array(
+        'description' => 'This is not used in Michigan',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+      'OfficialParty' => array(
+        'description' => 'This is always unaffliated in Michigan',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+      'CalculatedParty' => array(
+        'description' => 'RNC estimate of the contact political affiliation',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+      'GeneralFrequency' => array(
+        'description' => 'Number of last 4 generals in which contact has voted',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => FALSE,
+      ),
+       'CDName' => array(
+        'description' => 'Congressional District Number',
+        'type' => 'varchar',
+        'length' => 5,
+        'not null' => FALSE,
+      ),
+       'LDName' => array(
+        'description' => 'Michigan State House District Number',
+        'type' => 'varchar',
+        'length' => 5,
+        'not null' => FALSE,
+      ),
+       'SDName' => array(
+        'description' => 'Michigan State Senate District Number',
+        'type' => 'varchar',
+        'length' => 5,
+        'not null' => FALSE,
+      ),
+       'CountyName' => array(
+        'description' => 'The County in which the contact lives',
+        'type' => 'varchar',
+        'length' => 20,
+        'not null' => FALSE,
+      ),
+       'PrecinctNumber' => array(
+        'description' => 'A 10 digit string of the precinct number',
+        'type' => 'varchar',
+        'length' => 20,
+        'not null' => FALSE,
+      ),
+       'PrecinctName' => array(
+        'description' => 'The name of the city, ward, and precinct',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+       'VoterKey' => array(
+        'description' => 'Not sure what this is',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+       'HHRecId' => array(
+        'description' => 'A number that identifes the household',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+       'HHMemberId' => array(
+        'description' => 'An index for which household member this is',
+        'type' => 'varchar',
+        'length' => 10,
+        'not null' => FALSE,
+      ),
+       'HHCode' => array(
+        'description' => 'H, M, or S indicating head, member, or single family',
+        'type' => 'varchar',
+        'length' => 5,
+        'not null' => FALSE,
+      ),
+       'JurisdictionVoterId' => array(
+        'description' => 'An RNC voter id that tracks when voter moves?',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+       'ClientID' => array(
+        'description' => 'No idea what this is',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+       'RNCRegId' => array(
+        'description' => 'Same as JurisdictionVoterID?',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+       'StateVoterID' => array(
+        'description' => 'The contact QVF number',
+        'type' => 'int',
+        'size' => 'big',
+        'not null' => FALSE,
+      ),
+       'StateEthnicity' => array(
+        'description' => 'No Data Provided for Michigan',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+       'CellularPhone' => array(
+        'description' => 'WCGOP input for cell phone',
+        'type' => 'varchar',
+        'length' => 20,
+        'not null' => FALSE,
+      ),
+       'HomePhone' => array(
+        'description' => 'WCGOP input for home phone',
+        'type' => 'varchar',
+        'length' => 20,
+        'not null' => FALSE,
+      ),
+       'WorkPhone' => array(
+        'description' => 'WCGOP input for work phone',
+        'type' => 'varchar',
+        'length' => 20,
+        'not null' => FALSE,
+      ),
+       'Township' => array(
+        'description' => 'Township or City Name',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+      'CountyCommissionerDistrict' => array(
+        'description' => 'The contact CC district',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),      
+    ),  // End of fields array
+    'indexes' => array(
+    	'lastname' => array(array('LastName',10)),
+    	'house' => array('LDName'),
+    	'senate' => array('SDName'),
+    	'cd' => array('CDName'),
+    	'qvf' => array('StateVoterID'),
+    	'gop' => array('gop_id'),
+    	'ccd' => array(array('CountyCommissionerDistrict',20)),
+    
+  	),
+  		'primary key' => array('info_id'),
+  );  // End of schema array
+  return $schema;
+}				//End of schema function
+/**
+ * Implements hook_uninstall(). 
+ */
+function wcgopindividualinfo_uninstall() {
+  // Delete previousely created field.
+  
+}

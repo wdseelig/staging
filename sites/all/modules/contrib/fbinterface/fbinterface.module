@@ -1,0 +1,47 @@
+<?php
+
+/** 
+ * Implements hook_menu
+ */
+ 
+ function fbinterface_menu() {
+ 	$items['fbinterface-page'] = array (
+ 	'page callback' => 'fbinterface_page',
+ 	'access arguments'=> array('access content'),
+ 	'type' => MENU_CALLBACK,	
+ 	);
+ 	$items['fbinterface_fboauth_action_photo_import/%/%'] = array (
+ 	'page callback' => 'fbinterface_fboauth_action_photo_import',
+ 	'page arguments' => array(1,2),
+ 	'access arguments' => array('access content'),
+ 	'type' => MENU_CALLBACK,
+ 	);
+ 	return $items;
+ 	}
+ 	function fbinterface_page() {
+ 		$fblink .= fboauth_action_display('fbinterface_photo_import');
+ 		$output .= "<br>" . $fblink;
+ 		return $output;
+ 	}
+ 	function fbinterface_fboauth_actions() {
+ 	$actions['fbinterface_photo_import'] = array (
+ 		'title' => t('Import my revised Facebook email'),
+ 		'callback' => 'fbinterface_fboauth_action_photo_import',
+ 		'permissions' => array('user_photos'),
+ 
+ 	);
+ 	return $actions;
+ 	}
+ 	function fbinterface_fboauth_action_photo_import($app_id,$access_token) {
+ 		
+ 	$pathvalue = $DRUPAL_ROOT . 'sites/all/modules/contrib/fboauth/includes/fboauth.fboauth.inc';
+ 	include_once($pathvalue);
+ 	
+ 	$result = fboauth_graph_query('me',$access_token);
+  
+  $output = "<br><br><br>";  
+	$output .= 'The returned email address was: ' . $result->email;
+	$output .= kpr($result);
+	return $output;
+ 	}
+ 	

@@ -1,0 +1,87 @@
+diff --git a/js/exposed-form-ajax.js b/js/exposed-form-ajax.js
+index d568458f..ff77b95c 100644
+--- a/js/exposed-form-ajax.js
++++ b/js/exposed-form-ajax.js
+@@ -2,18 +2,20 @@
+  * @file
+  * Handles Views' exposed form AJAX data submission.
+  */
++
+ (function ($) {
++  'use strict';
+ 
+-  /*
+-   * Gets Form build info from settings and adds it to ajax data.
++  /**
++   * Gets Form build info from settings and adds it to AJAX data.
+    *
+    * @see views_exposed_form_ajax_enable().
+    */
+   Drupal.behaviors.ViewsExposedFormAjax = {
+     attach: function(context, settings) {
+       for (var ajaxObject in Drupal.ajax) {
+-        for(var name in Drupal.settings.ViewsExposedFormInfo) {
+-          if (Drupal.ajax[ajaxObject].options && Drupal.ajax[ajaxObject].options.data._triggering_element_name == name) {
++        for (var name in Drupal.settings.ViewsExposedFormInfo) {
++          if (Drupal.ajax[ajaxObject].options && Drupal.ajax[ajaxObject].options.data._triggering_element_name === name) {
+             jQuery.extend(Drupal.ajax[ajaxObject].options.data, Drupal.settings.ViewsExposedFormInfo[name]);
+           }
+         }
+diff --git a/views.module b/views.module
+index c87d0549..96a81ddb 100644
+--- a/views.module
++++ b/views.module
+@@ -2076,26 +2076,27 @@ function views_form_views_exposed_form_alter(&$form, &$form_state) {
+ }
+ 
+ /**
+- * Checks whether the exposed form will use ajax and passes required
+- * form information removed in views_form_views_exposed_form_alter().
++ * Checks whether the exposed form will use ajax and passes required form
++ * information removed in views_form_views_exposed_form_alter().
+  */
+ function views_exposed_form_ajax_enable(&$form, &$form_state) {
+-  // In order for Ajax to work, we need the form build info. Here we
+-  // check if #ajax has been added to any form elements, and if so,
+-  // pass this info as settings via Javascript, which get attached to
+-  // the submitted form on Ajax form submissions.
+-  // #ajax property can be set not only for the first level of the form,
+-  // so we look for it in the whole form.
++  // In order for AJAX to work, we need the form build info. Check if #ajax has
++  // been added to any form elements, and if so pass this info as settings via
++  // Javascript, which gets attached to the submitted form on AJAX form
++  // submissions. #ajax property can be set not only for the first level of the
++  // form, so we look for it in the whole form.
+   $ajax_info = array();
+   $ajax_elements = views_exposed_form_ajax_lookup_recursive($form);
+-  // Determine if form is being processed.
++
++  // Determine if the form is being processed.
+   $triggering_element_name = '';
+   if (!empty($form_state['input']['_triggering_element_name'])) {
+     $triggering_element_name = $form_state['input']['_triggering_element_name'];
+   }
+-  // When we have multiple elements with #ajax set on exposed form
+-  // we need to pass only triggering element name to Javascript.
+-  // Otherwise #ajax will work only for the first element.
++
++  // When there are multiple elements with #ajax set on exposed form we need to
++  // pass only triggering element name to Javascript. Otherwise #ajax will work
++  // only for the first element.
+   if (!empty($triggering_element_name) && !empty($ajax_elements)) {
+     // Check if element has #ajax property set.
+     if (in_array($triggering_element_name, $ajax_elements)) {
+@@ -2107,11 +2108,13 @@ function views_exposed_form_ajax_enable(&$form, &$form_state) {
+       $ajax_elements = array();
+     }
+   }
++
+   if (!empty($ajax_elements)) {
+     $form_info = array(
+       'form_id' => $form['#form_id'],
+       'form_build_id' => $form['#build_id'],
+     );
++
+     // Anonymous users don't get a token.
+     if (!empty($form['#token'])) {
+       $form_info['form_token'] = drupal_get_token($form['#token']);

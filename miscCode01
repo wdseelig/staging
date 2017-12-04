@@ -1,0 +1,80 @@
+/*
+ * Implements hook_schema_alter().
+ */
+function mymodule_schema_alter(&$schema) {
+  $schema['tablename']['fields']['fieldname'] = array(
+    'type' => 'varchar',
+    'default' => null
+  );
+}
+
+/*
+ * Implements hook_install().
+ */
+function mymodule_install() {
+  if (!db_field_exists('tablename', 'fieldname')) {
+    $schema = drupal_get_schema('tablename');
+    db_add_field('tablename', 'status', $schema['fields']['fieldname']);
+  }
+}
+
+/*
+ * Implements hook_uninstall().
+ */
+function mymodule_uninstall() {
+  if (db_field_exists('tablename', 'fieldname')) {
+    $schema = drupal_get_schema('tablename');
+    db_drop_field('tablename', 'fieldname');
+  }
+}
+
+
+/**
+ *  Implements hook_views_data_alter()
+ */
+function you_module_views_data_alter(&$data) {
+  $data['the_name_of_your_custom_table']['the_name_of_your_custom_table'] = array(
+    'title' => t('This is what you see on Relationships Views area'),
+    'help' => t('A sentence to help the user explain what is this.'),
+    // here where the magic begins
+    'relationship' => array(
+      'base' => 'users',  // the core table that you join in.
+      'base field' => 'uid',  // the field name of the core table that make the relation.
+      'field' => 'my_custom_id',  // the field name of YOUR table related with the core table.
+      'handler' => 'views_handler_relationship',  // default
+      'label' => t('UID vs my custom table.'),  // Some text showed on the Views Fields area. 
+    ),
+  );		
+}
+
+<?php
+/**
+ * Implements hook_entity_property_info_alter().
+ */
+function example_task_entity_property_info_alter(&$info) {
+  $properties = &$info['example_task']['properties'];
+  $properties['created'] = array(
+    'label' => t("Date created"),
+    'type' => 'date',
+    'description' => t("The date the node was posted."),
+    'setter callback' => 'entity_property_verbatim_set',
+    'setter permission' => 'administer nodes',
+    'schema field' => 'created',
+  );
+  $properties['changed'] = array(
+    'label' => t("Date changed"),
+    'type' => 'date',
+    'schema field' => 'changed',
+    'description' => t("The date the node was most recently updated."),
+  );
+  $properties['uid'] = array(
+    'label' => t("Author"),
+    'type' => 'user',
+    'description' => t("The author of the task."),
+    'setter callback' => 'entity_property_verbatim_set',
+    'setter permission' => 'administer example_task entities',
+    'required' => TRUE,
+    'schema field' => 'uid',
+  );
+}
+?>

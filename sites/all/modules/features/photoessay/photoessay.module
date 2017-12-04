@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the PhotoEssay feature.
+ */
+
+include_once 'photoessay.features.inc';

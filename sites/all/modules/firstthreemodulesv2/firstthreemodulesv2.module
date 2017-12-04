@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the FirstThreeModulesV2 feature.
+ */
+
+include_once 'firstthreemodulesv2.features.inc';

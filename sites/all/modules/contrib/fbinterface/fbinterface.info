@@ -1,0 +1,6 @@
+name = Trial FB Integration
+description = "See if we can grab some information from the user's facebook profile"
+package = WCGOP
+core = 7.x
+dependencies[] = fboauth
+

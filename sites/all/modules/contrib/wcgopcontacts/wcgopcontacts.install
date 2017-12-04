@@ -1,0 +1,311 @@
+<?php
+
+/**
+  *	Implements hook_install
+*/
+
+	function wcgopcontacts_install () {
+	
+	}
+/**
+	  *	Implements hook_uninstall
+*/
+
+	function wcgopcontacts_uninstall () {
+	
+	}
+
+/**
+	*	Implements hook_schema
+	*/
+	
+	function wcgopcontacts_schema () {
+	$schema = array();
+	$schema['wcgopcontactsinfo'] = array(
+    'description' => 'The base table for the wcgopcontactsinfo entity',
+    'fields' => array(
+      'gopid' => array(
+        'description' => 'Primary key of the wcgopcontactsinfo entity',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'LastName' => array(
+        'description' => 'The contact last name',
+        'type' => 'text',
+        'length' => 50,
+        'not null' => FALSE,
+      ),
+      'FirstName' => array(
+        'description' => 'The contact' . "'" . 's first name',
+        'type' => 'text',
+        'length' => 50,
+        'not null' => FALSE,
+      ),
+      'MiddleName' => array(
+        'description' => 'The contact' . "'" . 's middle name',
+        'type' => 'text',
+        'length' => 50,
+        'not null' => FALSE,
+      ),
+      'PrimayAddress1' => array(
+        'description' => 'The contact' . "'" . 's street address',
+        'type' => 'text',
+        'length' => 50,
+        'not null' => FALSE,
+      ),
+      'PrimaryCity' => array(
+        'description' => 'The city in which the contact is registered',
+        'type' => 'text',
+        'length' => 50,
+        'not null' => FALSE,
+      ),
+      'PrimaryState' => array(
+        'description' => 'The state in which the contact lives',
+        'type' => 'text',
+        'length' => 50,
+        'not null' => FALSE,
+      ),
+      'PrimaryZip' => array(
+        'description' => 'The contact' . "'" . 's zip code',
+        'type' => 'text',
+        'length' => 15,
+        'not null' => FALSE,
+      ),
+      'PrimaryZip4' => array(
+        'description' => 'The contact' . "'" . 's 9 digit zip code',
+        'type' => 'text',
+        'length' => 50,
+        'not null' => FALSE,
+      ),
+      'PrimaryHouseNumber' => array(
+        'description' => 'The contact' . "'" . 's House Number',
+        'type' => 'text',
+        'length' => 50,
+        'not null' => FALSE,
+      ),
+      'PrimaryHouseHalf' => array(
+        'description' => 'The house half number',
+        'type' => 'text',
+        'length' => 50,
+        'not null' => FALSE,
+      ),
+      'PrimaryStreetName' => array(
+        'description' => 'The contact' . "'" . 's Street Name',,
+        'type' => 'text',
+        'length' => 50,
+        'not null' => FALSE,
+      ),
+      'PrimaryStreetType' => array(
+        'description' => 'The type of street (road, avenue, etc.) on which the contact lives',
+        'type' => 'text',
+        'length' => 50,
+        'not null' => FALSE,
+      ),
+      'PrimaryUnit' => array(
+        'description' => 'The type of living quarter: Unit, Apt. , etc.',
+        'type' => 'text',
+        'length' => 50,
+        'not null' => FALSE,
+      ),
+      'PrimaryUnitNumber' => array(
+        'description' => 'The number of the unit, apartment, etc.',
+        'type' => 'text',
+        'length' => 50,
+        'not null' => FALSE,
+      ),
+      'PrimaryPhone' => array(
+        'description' => 'The contact' . "'" . 's telephone number',
+        'type' => 'text',
+        'length' => 50,
+        'not null' => FALSE,
+      ),
+      'HasPrimaryPhone' => array(
+        'description' => 'TRUE/FALSE indicating whether has phone',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => FALSE,
+      ),
+      'DOB' => array(
+        'description' => 'Date of Birth (just the year)',
+        'type' => 'text',
+        'length' => 50,
+        'not null' => FALSE,
+      ),
+      'Age' => array(
+        'description' => 'Column Description',
+        'type' => 'int',
+        'size' => 'small',
+        'not null' => FALSE,
+      ),
+      'Gender' => array(
+        'description' => 'Gender',
+        'type' => 'text',
+        'length' => 5,
+        'not null' => FALSE,
+      ),
+      'ObservedParty' => array(
+        'description' => 'This is not used in Michigan',
+        'type' => 'text',
+        'length' => 50,
+        'not null' => FALSE,
+      ),
+      'OfficialParty' => array(
+        'description' => 'This is always unaffliated in Michigan',
+        'type' => 'text',
+        'length' => 50,
+        'not null' => FALSE,
+      ),
+      'CalculatedParty' => array(
+        'description' => 'RNC estimate of the contact political affiliation',
+        'type' => 'text',
+        'length' => 50,
+        'not null' => FALSE,
+      ),
+      'GeneralFrequency' => array(
+        'description' => 'Number of last 4 generals in which contact has voted',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => FALSE,
+      ),
+       'CDName' => array(
+        'description' => 'Congressional District Number',
+        'type' => 'text',
+        'length' => 5,
+        'not null' => FALSE,
+      ),
+       'LDName' => array(
+        'description' => 'Michigan State House District Number',
+        'type' => 'text',
+        'length' => 5,
+        'not null' => FALSE,
+      ),
+       'SDName' => array(
+        'description' => 'Michigan State Senate District Number',
+        'type' => 'text',
+        'length' => 5,
+        'not null' => FALSE,
+      ),
+       'CountyName' => array(
+        'description' => 'The County in which the contact lives',
+        'type' => 'text',
+        'length' => 20,
+        'not null' => FALSE,
+      ),
+       'PrecinctNumber' => array(
+        'description' => 'A 10 digit string of the precinct number',
+        'type' => 'text',
+        'length' => 20,
+        'not null' => FALSE,
+      ),
+       'PrecinctName' => array(
+        'description' => 'The name of the city, ward, and precinct',
+        'type' => 'text',
+        'length' => 50,
+        'not null' => FALSE,
+      ),
+       'VoterKey' => array(
+        'description' => 'Not sure what this is',
+        'type' => 'text',
+        'length' => 50,
+        'not null' => FALSE,
+      ),
+       'HHRecID' => array(
+        'description' => 'A number that identifes the household',
+        'type' => 'text',
+        'length' => 50,
+        'not null' => FALSE,
+      ),
+       'HHMemberId' => array(
+        'description' => 'An index for which household member this is',
+        'type' => 'text',
+        'length' => 10,
+        'not null' => FALSE,
+      ),
+       'HHCode' => array(
+        'description' => 'H, M, or S indicating head, member, or single family',
+        'type' => 'text',
+        'length' => 5,
+        'not null' => FALSE,
+      ),
+       'columnname' => array(
+        'description' => 'columndescription',
+        'type' => 'text',
+        'length' => 50,
+        'not null' => FALSE,
+      ),
+       'JurisdictionVoterID' => array(
+        'description' => 'An RNC voter id that tracks when voter moves?',
+        'type' => 'text',
+        'length' => 50,
+        'not null' => FALSE,
+      ),
+       'ClientID' => array(
+        'description' => 'No idea what this is',
+        'type' => 'text',
+        'length' => 50,
+        'not null' => FALSE,
+      ),
+       'RNCRegid' => array(
+        'description' => 'Same as JurisdictionVoterID?',
+        'type' => 'text',
+        'length' => 50,
+        'not null' => FALSE,
+      ),
+       'StateVoterID' => array(
+        'description' => 'The contact QVF number',
+        'type' => 'int',
+        'size' => 'big',
+        'not null' => FALSE,
+      ),
+       'StateEthnicity' => array(
+        'description' => 'No Data Provided for Michigan',
+        'type' => 'text',
+        'length' => 50,
+        'not null' => FALSE,
+      ),
+       'CellularPhone' => array(
+        'description' => 'WCGOP input for cell phone',
+        'type' => 'text',
+        'length' => 20,
+        'not null' => FALSE,
+      ),
+       'HomePhone' => array(
+        'description' => 'WCGOP input for home phone',
+        'type' => 'text',
+        'length' => 20,
+        'not null' => FALSE,
+      ),
+       'WorkPhone' => array(
+        'description' => 'WCGOP input for work phone',
+        'type' => 'text',
+        'length' => 20,
+        'not null' => FALSE,
+      ),
+       'Township' => array(
+        'description' => 'Township or City Name',
+        'type' => 'text',
+        'length' => 50,
+        'not null' => FALSE,
+      ),
+      'CountyCommissionerDistrict' => array(
+        'description' => 'The contact CC district',
+        'type' => 'text',
+        'length' => 50,
+        'not null' => FALSE,
+      ),
+      
+    ),
+    'primary key' => array('gopid'),
+    'indexes' => array(
+    	'lastname' => array('LastName'),
+    	'precinct' => array('PrecinctName'),
+    	'house' => array('LDName'),
+    	'senate' => array('SDName'),
+    	'qvf' => array('StateVoterId'),
+    	'cd' => array('CDName'),
+    	'ccd' => array('CountyCommissionerDistrict'),
+  );
+  
+  return $schema;
+}

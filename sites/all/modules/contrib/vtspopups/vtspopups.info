@@ -1,0 +1,6 @@
+name = Popup Forms Demonstration
+description = "A module to allow my own popup forms"
+package = WCGOP
+core = 7.x
+dependencies[] = popup_forms
+files[] = vtspopups.module

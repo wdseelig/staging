@@ -1,0 +1,170 @@
+<?php 
+
+/**
+ * @file
+ * Install, update and uninstall functions for the entity_example module.
+ * 
+ * Both the hook_install() and hook_schema() implementations are a shameless
+ * copy pasta of the ones in the Profile 2 module.
+ * 
+ * @see http://drupal.org/project/profile2
+ */
+
+/**
+ * Implements hook_install().
+ */
+function entity_example_install() {
+  // Add an initial bundle, but only if installed manually. In case the
+  // module is installed via an installation profile, skip that.
+  if (!drupal_installation_attempted()) {
+    $type = entity_create('entity_example_bundle', array(
+        'type' => 'main',
+        'label' => t('Main type (bundle)'),
+        'weight' => 0,
+        //'data' => array('registration' => TRUE, 'use_page' => TRUE),
+    ));
+    $type->save();
+    // user_role_grant_permissions must match the perms specified in the module's hook_permission().
+    user_role_grant_permissions(DRUPAL_AUTHENTICATED_RID, array('administer entity_examples'));
+    drupal_set_message(t('An example entity example bundle has been created and assigned to all users. 
+        Go to the <a href="!url">Profile types</a> page to add some fields or to configure further profile types.', 
+    array('!url' => url('admin/structure/entity_example_bundles'))));
+  }
+}
+
+/**
+ * Implementation of hook_schema().
+ * 
+ * All we are doing here is telling Drupal to create a table with two fields, 
+ * one of which is the primary key. The table will be created as soon as the module is enabled.
+ */
+function entity_example_schema() {
+  
+  // This is the main entity table.
+  $schema['entity_example'] = array (
+    'description' => 'Stores entity_example items.',
+    'fields' => array(
+      'pid' => array(
+        'description' => 'Primary key for our table of entity example notes',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      // Note that we add the type column because we are using bundles.
+      'type' => array(
+        'description' => 'The {entity_example_bundle}.type of this item.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'note' => array(
+        'description' => 'The actual note',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE
+      ),
+      // The uid column serves as an example of how to associate your custom entity
+      // with a completely foreign entity that lives in a separate module.
+      'uid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+        'default' => NULL,
+        'description' => "The {users}.uid of the associated user.",
+      ),
+      'label' => array(
+        'description' => 'A human-readable label for this item.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'created' => array(
+        'description' => 'The Unix timestamp when the item was created.',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
+      'changed' => array(
+        'description' => 'The Unix timestamp when the item was most recently saved.',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
+    ),
+    'indexes' => array(
+        'uid' => array('uid'),
+    ),
+    'foreign keys' => array(
+      'uid' => array(
+        'table' => 'users',
+        'columns' => array('uid' => 'uid'),
+      ),
+      'type' => array(
+        'table' => 'entity_example_bundle',
+        'columns' => array('type' => 'type'),
+      ),
+    ),
+    'primary key' => array('pid'),
+  );
+  
+  // This is our bundle table.
+  $schema['entity_example_bundle'] = array(
+    'description' => 'Stores information about all defined entity_example bundles.',
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique entity_example bundles ID.',
+      ),
+      'type' => array(
+        'description' => 'The machine-readable name of this entity_example bundle.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+      ),
+      'label' => array(
+        'description' => 'The human-readable name of this entity_example bundle.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'weight' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
+        'description' => 'The weight of this entity_example bundle in relation to others.',
+      ),
+      'data' => array(
+        'type' => 'text',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+        'description' => 'A serialized array of additional data related to this entity_example bundle.',
+      ),
+      'status' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        // Set the default to ENTITY_CUSTOM without using the constant as it is
+        // not safe to use it at this point.
+        'default' => 0x01,
+        'size' => 'tiny',
+        'description' => 'The exportable status of the entity.',
+      ),
+      'module' => array(
+        'description' => 'The name of the providing module if the entity has been defined in code.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+    ),
+    'primary key' => array('id'),
+    'unique keys' => array(
+      'type' => array('type'),
+    ),
+  );
+  
+  return $schema;
+}
+

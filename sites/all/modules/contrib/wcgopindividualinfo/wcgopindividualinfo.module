@@ -1,0 +1,546 @@
+<?php
+
+/**
+ * @file
+ * Describe the wcgopindividualinfo entity
+*/
+
+/**
+ * Implements hook_entity_info().
+ */
+function wcgopindividualinfo_entity_info() {
+  $info = array(
+    'wcgopindividualinfo' => array(
+      'label' => t('WC GOP Individual Info'),
+      'base table' => 'wcgopindividualinfo',
+      'entity keys' => array(
+        	'id' => 'info_id',
+      		),
+      // Definitions of entity and controller custom classes are placed in a
+      // special file.
+      // @see wcgopindividualinfo.controller.inc
+      'entity class' => 'wcgopindividualinfo',
+      'controller class' => 'wcgopindividualinfoController',
+      'metadata controller class' => '',
+      'views controller class' => 'EntityDefaultViewsController',
+      'fieldable' => TRUE,
+      // This line must be specified for using entity_uri() function.
+      'uri callback' => 'entity_class_uri',
+      // This line must be specified for using entity_label() function.
+      'label callback' => 'entity_class_label',
+      'module' => 'wcgopindividualinfo',
+    ),
+  );
+  return $info;
+}
+
+/**
+ * Implements hook_entity_property_info().
+ */
+function wcgopindividualinfo_entity_property_info() {
+  $info = array();
+  $properties = &$info['wcgopindividualinfo']['properties'];
+  $properties['info_id'] = array(
+    'type' => 'wcgopindividualinfo',
+    'schema field' => 'info_id',
+    'label' => t('info_id'),
+    'description' => t('The id for records in the info entity'),
+    'setter callback' => 'entity_property_verbatim_set',
+    'setter permission' => 'Administer wcgopindividualinfo content',
+  );
+  $properties['gop_id'] = array(
+    'type' => 'integer',
+    'schema field' => 'gop_id',
+    'label' => t('gop_id'),
+    'description' => t('This is the id for Legacy data'),
+    'setter callback' => 'entity_property_verbatim_set',
+  ); 
+  $properties['LastName'] = array(
+    'type' => 'text',
+    'schema field' => 'LastName',
+    'sortable' => TRUE,
+    'required' => FALSE,
+    'description' => t('This is the contacts last name'),
+    'label' => t('Last NNNName'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['FirstName'] = array(
+    'type' => 'text',
+    'schema field' => 'FirstName',
+    'description' => t('This is the contacts first name'),
+    'label' => t('First Name'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+   $properties['MiddleName'] = array(
+    'type' => 'text',
+    'schema field' => 'MiddleName',
+    'required' => FALSE,
+    'description' => t('This is the contacts middle name'),
+    'label' => t('Middle Name'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['PrimaryAddress1'] = array(
+    'type' => 'text',
+    'schema field' => 'PrimaryAddress1',
+    'required' => FALSE,
+    'description' => t('Contacts street address'),
+    'label' => t('Street Address'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['PrimaryCity'] = array(
+    'type' => 'text',
+    'schema field' => 'PrimaryCity',
+    'required' => FALSE,
+    'description' => t('The city in which the contact lives'),
+    'label' => t('City'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['PrimaryState'] = array(
+    'type' => 'text',
+    'schema field' => 'PrimaryState',
+    'required' => FALSE,
+    'description' => t('The state in which the contact lives'),
+    'label' => t('State'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['PrimaryZip'] = array(
+    'type' => 'text',
+    'schema field' => 'PrimaryZip',
+    'required' => FALSE,
+    'description' => t('The zip code of the contact'),
+    'label' => t('ZipCode'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['PrimaryZip4'] = array(
+    'type' => 'text',
+    'schema field' => 'PrimaryZip4',
+    'required' => FALSE,
+    'description' => t('The zip + 4 code'),
+    'label' => t('Zip+4'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['PrimaryHouseNumber'] = array(
+    'type' => 'text',
+    'schema field' => 'PrimaryHouseNumber',
+    'required' => FALSE,
+    'description' => t('The contact house number'),
+    'label' => t('House Number'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['PrimaryHouseHalf'] = array(
+    'type' => 'text',
+    'schema field' => 'PrimaryHouseHalf',
+    'required' => FALSE,
+    'description' => t('The house half number'),
+    'label' => t('House Half'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['PrimaryStreetName'] = array(
+    'type' => 'text',
+    'schema field' => 'PrimaryStreetName',
+    'required' => FALSE,
+    'description' => t('The contact street name'),
+    'label' => t('Street name'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['PrimaryStreetType'] = array(
+    'type' => 'text',
+    'schema field' => 'PrimaryStreetType',
+    'required' => FALSE,
+    'description' => t('The type of street'),
+    'label' => t('Street Type'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['PrimaryUnit'] = array(
+    'type' => 'text',
+    'schema field' => 'PrimaryUnit',
+    'required' => FALSE,
+    'description' => t('The type of dwelling'),
+    'label' => t('Dwelling Type'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['PrimaryUnitNumber'] = array(
+    'type' => 'text',
+    'schema field' => 'PrimaryUnitNumber',
+    'required' => FALSE,
+    'description' => t('The number of the unit'),
+    'label' => t('Unit'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['PrimaryPhone'] = array(
+    'type' => 'text',
+    'schema field' => 'PrimaryPhone',
+    'required' => FALSE,
+    'description' => t('The contacts phone'),
+    'label' => t('Phone'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['HasPrimaryPhone'] = array(
+    'type' => 'integer',
+    'schema field' => 'HasPrimaryPhone',
+    'required' => FALSE,
+    'description' => t('True if user has a primary phone'),
+    'label' => t('HasPhone?'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['DOB'] = array(
+    'type' => 'text',
+    'schema field' => 'DOB',
+    'required' => FALSE,
+    'description' => t('Date of birth (year only)'),
+    'label' => t('DOB'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['Age'] = array(
+    'type' => 'integer',
+    'schema field' => 'Age',
+    'required' => FALSE,
+    'description' => t('The contacts age'),
+    'label' => t('Age'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['Gender'] = array(
+    'type' => 'text',
+    'schema field' => 'Gender',
+    'required' => FALSE,
+    'description' => t('Gender'),
+    'label' => t('Gender'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['ObservedParty'] = array(
+    'type' => 'text',
+    'schema field' => 'ObservedParty',
+    'required' => FALSE,
+    'description' => t('Observed Party -- Not Used in Michigan'),
+    'label' => t('Observed Party'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['OfficialParty'] = array(
+    'type' => 'text',
+    'schema field' => 'OfficialParty',
+    'required' => FALSE,
+    'description' => t('Official Party - Unaffiliated in Michigan'),
+    'label' => t('Official Party'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['CalculatedParty'] = array(
+    'type' => 'text',
+    'schema field' => 'CalculatedParty',
+    'required' => FALSE,
+    'description' => t('RNC estimate of party affiliation'),
+    'label' => t('CalculatedParty'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['GeneralFrequency'] = array(
+    'type' => 'integer',
+    'schema field' => 'GeneralFrequency',
+    'required' => FALSE,
+    'description' => t('Propensity to vote'),
+    'label' => t('VotingFrequency'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['CDName'] = array(
+    'type' => 'text',
+    'schema field' => 'CDName',
+    'required' => FALSE,
+    'description' => t('Congressional District Number'),
+    'label' => t('CD#'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['LDName'] = array(
+    'type' => 'text',
+    'schema field' => 'LDName',
+    'required' => FALSE,
+    'description' => t('State Legislative District Number'),
+    'label' => t('LD#'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['SDName'] = array(
+    'type' => 'text',
+    'schema field' => 'SDName',
+    'required' => FALSE,
+    'description' => t('State Senate District Number'),
+    'label' => t('SD#'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['CountyName'] = array(
+    'type' => 'text',
+    'schema field' => 'CountyName',
+    'required' => FALSE,
+    'description' => t('County Name'),
+    'label' => t('County'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['PrecinctNumber'] = array(
+    'type' => 'text',
+    'schema field' => 'PrecinctNumber',
+    'required' => FALSE,
+    'description' => t('A 10 digit string of the precinct number'),
+    'label' => t('Precinct#'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['PrecinctName'] = array(
+    'type' => 'text',
+    'schema field' => 'PrecinctName',
+    'required' => FALSE,
+    'description' => t('The name of the city, ward, and precinct'),
+    'label' => t('PrecinctName'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['VoterKey'] = array(
+    'type' => 'text',
+    'schema field' => 'VoterKey',
+    'required' => FALSE,
+    'description' => t('WDS Does not know what this is'),
+    'label' => t('Unknown'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['HHRecId'] = array(
+    'type' => 'text',
+    'schema field' => 'HHRecId',
+    'required' => FALSE,
+    'description' => t('An ID number for the household'),
+    'label' => t('HH#'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['HHMemberId'] = array(
+    'type' => 'text',
+    'schema field' => 'HHMemberId',
+    'required' => FALSE,
+    'description' => t('An index number for individuals in the household'),
+    'label' => t('HHIndex'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['HHCode'] = array(
+    'type' => 'text',
+    'schema field' => 'HHCode',
+    'required' => FALSE,
+    'description' => t('H,M, or S of contact'),
+    'label' => t('HHCode'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['JurisdictionVoterId'] = array(
+    'type' => 'text',
+    'schema field' => 'JurisdictionVoterId',
+    'required' => FALSE,
+    'description' => t('RND Voter ID number (preserved)'),
+    'label' => t('RNC Voter ID'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['ClientID'] = array(
+    'type' => 'text',
+    'schema field' => 'ClientID',
+    'required' => FALSE,
+    'description' => t('WDS does not know what this is'),
+    'label' => t('Unknown II'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['RNCRegId'] = array(
+    'type' => 'text',
+    'schema field' => 'RNCRegId',
+    'required' => FALSE,
+    'description' => t('Another version of the RNC ID'),
+    'label' => t('RNC Voter ID'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['StateVoterID'] = array(
+    'type' => 'text',
+    'schema field' => 'StateVoterID',
+    'required' => FALSE,
+    'description' => t('The voter QVF Number'),
+    'label' => t('QVF'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['StateEthnicity'] = array(
+    'type' => 'text',
+    'schema field' => 'StateEthnicity',
+    'required' => FALSE,
+    'description' => t('No data provided by Michigan'),
+    'label' => t('Ethnicity'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['CellularPhone'] = array(
+    'type' => 'text',
+    'schema field' => 'CellularPhone',
+    'required' => FALSE,
+    'description' => t('WCGOP field for cell phone'),
+    'label' => t('CellPhone'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['HomePhone'] = array(
+    'type' => 'text',
+    'schema field' => 'HomePhone',
+    'required' => FALSE,
+    'description' => t('WCGOP field for home phone'),
+    'label' => t('HomePhone'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['WorkPhone'] = array(
+    'type' => 'text',
+    'schema field' => 'WorkPhone',
+    'required' => FALSE,
+    'description' => t('WCGOP field for Work Phone'),
+    'label' => t('Work Phone'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['Township'] = array(
+    'type' => 'text',
+    'schema field' => 'Township',
+    'required' => FALSE,
+    'description' => t('Township or city name'),
+    'label' => t('Township'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['CountyCommissionerDistrict'] = array(
+    'type' => 'text',
+    'schema field' => 'CountyCommissionerDistrict',
+    'required' => FALSE,
+    'description' => t('The contacts counby commissioner district'),
+    'label' => t('CC District'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+ 
+/*
+*	NOTE:  This section will need to be expanded to include all of the fields
+*/
+  return $info;
+}
+
+/**
+ * Implements hook_menu().
+ * 
+ * Describe pages for viewing and managing entities.
+ */
+function wcgopindividualinfo_menu() {
+  $items = array();
+
+  // Base URI for dealing with entity.
+  $base_uri = 'wcgopindividualinfo/%wcgopindividualinfo';
+  $base_uri_argument_position = 1;
+
+  // URI for viewing list of existing entities.
+  $items['wcgopindividualinfo'] = array(
+    'title' => 'WCGOP Individual Information',
+    'page callback' => 'wcgopindividualinfo_list',
+    'access arguments' => array('view wcgopindividualinfo content'),
+    'file' => 'wcgopindividualinfo.pages.inc',
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+
+  // URI for adding entity of proper bundle.
+  $entity_info = entity_get_info('wcgopindividualinfo');
+    $items['wcgopindividualinfo/add'] = array(
+      'title' => 'Add ' . 'Individual Information',
+      'page callback' => 'wcgopindividualinfo_add',
+      'page arguments' => array(1),
+      'access arguments' => array('administer wcgopindividualinfo content'),
+      'file' => 'wcgopindividualinfo.admin.inc',
+    );
+
+  // URI for viewing entity instances.
+  $items[$base_uri] = array(
+    'title callback' => 'entity_label',
+    'title arguments' => array('wcgopindividualinfo', $base_uri_argument_position),
+    'page callback' => 'wcgopindividualinfo_view',
+    'page arguments' => array($base_uri_argument_position),
+    'access arguments' => array('view wcgopindividualinfo content'),
+    'file' => 'wcgopindividualinfo.pages.inc',
+  );
+  $items[$base_uri . '/view'] = array(
+    'title' => 'View a WCGOP Individual Info entry',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+
+  // URI for editing entity instances.
+  $items[$base_uri . '/edit'] = array(
+    'title' => 'Edit wcgopindividualinfo',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wcgopindividualinfo_form', $base_uri_argument_position),
+    'access arguments' => array('administer wcgopindividualinfo content'),
+    'file' => 'wcgopindividualinfo.admin.inc',
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+  );
+
+  // URI for deleting entity instances.
+  $items[$base_uri . '/delete'] = array(
+    'title' => 'wcgopindividualinfo Delete',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wcgopindividualinfo_form_delete', $base_uri_argument_position),
+    'access arguments' => array('administer wcgopindividualinfo content'),
+    'file' => 'wcgopindividualinfo.admin.inc',
+  );
+  // URI for adding this entity to WCGOP contacts.
+  $items[$base_uri . '/addtocontacts'] = array(
+    'title' => 'wcgopindividualinfo Add to Contacts',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wcgopindividualinfo_form_addtocontacts', $base_uri_argument_position),
+    'access arguments' => array('administer wcgopindividualinfo content'),
+    'file' => 'wcgopindividualinfo.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Load an instance of typical_entity_example_4.
+ * 
+ * @param int $teid
+ *   Entity identifier.
+ * @param bool $reset
+ *   Whether to reset the internal cache for typical_entity_example_4.
+ * 
+ * @return mixed
+ *   An actual entity, or false.
+ */
+function wcgopindividualinfo_load($info_id, $reset = FALSE) {
+  $entities = wcgopindividualinfo_load_multiple(array($info_id), array(), $reset);
+  return reset($entities);
+}
+
+/**
+ * Load multiple instances of typical_entity_example_4.
+ * 
+ * @see entity_load()
+ * 
+ * @param array $teids
+ *   Entity identifiers.
+ * @param array $conditions
+ *   (deprecated) An associative array of conditions on the base entity table.
+ * @param bool $reset
+ *   Whether to reset the internal cache for typical_entity_example_4.
+ * 
+ * @return array
+ *   Founded entities.
+ */
+function wcgopindividualinfo_load_multiple($info_ids = array(), $conditions = array(), $reset = FALSE) {
+  return entity_load('wcgopindividualinfo', $info_ids, $conditions, $reset);
+}
+/**
+ * Implements hook_permission().
+ */
+function wcgopindividualinfo_permission() {
+  $permissions = array(
+    'view wcgopindividualinfo content' => array(
+      'title' => t('View wcgopindividualinfo content'),
+    ),
+    'administer wcgopindividualinfo content' => array(
+      'title' => t('Administer wcgopindividualinfo content'),
+      'restrict access' => FALSE,
+    ),
+  );
+  return $permissions;
+}
+/**
+ * Implements hook_views_api().
+ */
+function wcgopindividualinfo_views_api() {
+  // Describe the folder where "wcgopindividualinfo.views_default.inc" file
+  // is located.
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'wcgopindividualinfo'),
+  );
+}

@@ -1,0 +1,114 @@
+<?php
+
+/**
+ * Implements hook_init().
+ */
+function vtspopups_init() {
+  if (isset($_GET['pfnickname'])) {
+    popup_forms_parent_js();
+    $js = "
+      (function($) {
+        $(document).ready(function() {
+          popupFormsFormShow('vtspopups_nickname_form', null);
+        });
+      })(jQuery);
+    ";
+    drupal_add_js($js, 'inline');
+  }
+   if (isset($_GET['pflogin'])) {
+    popup_forms_parent_js();
+    $js = "
+      (function($) {
+        $(document).ready(function() {
+          popupFormsFormShow('vtspopups_login_form', null);
+        });
+      })(jQuery);
+    ";
+    drupal_add_js($js, 'inline');
+  }
+//  ctools_add_js('ajax-responder');
+}
+
+/**
+ * Implements hook_popup_forms_data().
+ */
+function vtspopups_popup_forms_data() {
+  return array(
+    'vtspopups_nickname_form' => array(
+    	'form_id' =>'vtspopups_nickname_form',
+      'access callback' => TRUE,
+      'form arguments' => array(
+        'arg' => NULL,
+      ),
+    ),
+    'vtspopups_login_form' =>array(
+    	'form_id' =>'vtspopups_login_form',
+      'access callback' => TRUE,
+      'form arguments' => array(
+        'arg' => NULL,
+      ),
+    ),
+  );
+}
+
+/**
+ * Form construction callback for nickname popup form.
+ */
+function vtspopups_nickname_form($form, &$form_state) {
+  $form['arg'] = array(
+    '#type' => 'item',
+    '#title' => t('Please tell us what you would like for your Nickname to be <br> 
+      (This Nickname is what will show in the volunteer schedule)'),
+    '#markup' => check_plain($arg),
+    '#redirect' => 'Stuff from the instantiation',
+  );
+  $form['handle'] = array (
+  	'#title' => 'Nickname: ',
+  	'#type' => 'textfield',
+  	'#size' => '8',
+  	'#required' => TRUE,
+  	'#description' => 'The nickname you would like to have',
+  );
+  $form['submit'] = array (
+  	'#type' => 'submit',
+  	'#value'=> 'Submit',
+  );
+  return $form;
+}
+function vtspopups_login_form($form, &$form_state) {
+	 $vtsuser = $_SESSION['vtsusrobj'];
+  $form['arg'] = array(
+    '#type' => 'item',
+    '#title' => t('Please tell us your email address so that we can connect you to our<br> volunteer system'),
+    '#cache' => FALSE,
+    '#markup' => check_plain($arg),
+  );
+  $form['email'] = array (
+  	'#title' => 'Email: ',
+  	'#type' => 'textfield',
+  	'#size' => '60',
+  	'#required' => TRUE,
+  	'#description' => 'Your email addess',
+  );
+  $form['submit'] = array (
+  	'#type' => 'submit',
+  	'#value'=> 'Submit',
+  );
+  return $form;
+}
+function vtspopups_nickname_form_submit($form, &$form_state) {
+global $user;
+$vtsuser =  $_SESSION['vtsusrobj'];
+$vtsuser->handle = $form_state['input']['handle'];
+setvtsusrcreds($user,$vtsuser);  //Store user input in db
+$_SESSION['vtsusrobj'] = $vtsuser;
+drupal_goto('vtsdailyview/' . $vtsuser->dayid);
+}
+
+function vtspopups_login_form_submit($form, &$form_state) {
+	global $user;
+	$vtsuser =  $_SESSION['vtsusrobj'];
+	$vtsuser->email = $form_state['input']['email'];
+        getvtsusrcreds($user, $vtsuser);
+        drupal_goto('vtsdailyview/' . $vtsuser->dayid);
+}

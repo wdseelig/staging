@@ -1,0 +1,47 @@
+<?php
+/**
+ * @file
+ * Installation hooks.
+ */
+
+/**
+ * Implements hook_requirements().
+ */
+function popup_forms_requirements($phase) {
+  $t = get_t();
+  $result = array(
+    'popup_forms_jquery_postmessage' => array(
+      'title' => 'Popup Forms: jQuery Postmessage',
+      'severity' => REQUIREMENT_OK,
+      'value' => $t('jQuery Postmessage plugin found.'),
+    ),
+    'popup_forms_jquery_deparam' => array(
+      'title' => 'Popup Forms: jQuery deparam',
+      'severity' => REQUIREMENT_OK,
+      'value' => $t('jQuery deparam plugin found.'),
+    ),
+  );
+  if (function_exists('libraries_get_path')) {
+    $path = libraries_get_path('jquery.postmessage');
+    $path_deparam = libraries_get_path('jquery-deparam');
+  }
+  else {
+    $path = 'sites/all/libraries/jquery.postmessage';
+    $path_deparam = 'sites/all/libraries/jquery-deparam';
+  }
+  if (!file_exists("$path/jquery.ba-postmessage.min.js")) {
+    $result['popup_forms_jquery_postmessage']['severity'] = REQUIREMENT_ERROR;
+    $result['popup_forms_jquery_postmessage']['value'] = $t('jQuery Postmessage plugin not found.');
+    $result['popup_forms_jquery_postmessage']['description'] = $t('Could not find jQuery Postmessage plugin.');
+    $result['popup_forms_jquery_postmessage']['description'] .= ' ';
+    $result['popup_forms_jquery_postmessage']['description'] .= $t('<a href="@postmessage_plugin_url">Download it here</a> and place into libraries directory.', array('@postmessage_plugin_url' => url('https://github.com/chrissrogers/jquery-postmessage', array('absolute' => TRUE))));
+  }
+  if (!file_exists("$path_deparam/jquery-deparam.min.js")) {
+    $result['popup_forms_jquery_deparam']['severity'] = REQUIREMENT_ERROR;
+    $result['popup_forms_jquery_deparam']['value'] = $t('jQuery deparam plugin not found.');
+    $result['popup_forms_jquery_deparam']['description'] = $t('Could not find jQuery deparam plugin.');
+    $result['popup_forms_jquery_deparam']['description'] .= ' ';
+    $result['popup_forms_jquery_deparam']['description'] .= $t('<a href="@deparam_plugin_url">Download it here</a> and place into libraries directory.', array('@deparam_plugin_url' => url('https://github.com/chrissrogers/jquery-deparam', array('absolute' => TRUE))));
+  }
+  return $result;
+}
